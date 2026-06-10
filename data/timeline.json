@@ -1,0 +1,42 @@
+{
+  "timeline": [
+    {
+      "id": "event-001",
+      "date": "2024-05-18",
+      "planetId": "planet-002",
+      "attackerPlayerIds": ["player-003"],
+      "defenderPlayerIds": ["player-001"],
+      "summary": "The jungle advance was halted at the river line.",
+      "aftermath": "Protectors held the planet but suffered heavy attrition. The Ork warband withdrew to regroup.",
+      "unitChanges": [
+        "loss of 2 infantry squads",
+        "Ork attack wagons destroyed"
+      ]
+    },
+    {
+      "id": "event-002",
+      "date": "2024-05-22",
+      "planetId": "planet-001",
+      "playerIds": ["player-001", "player-002"],
+      "summary": "A joint Protector muster on Vortannis Prime prepared reinforcements for the front.",
+      "notes": "Logistics columns are being rerouted through the northern warp lane.",
+      "unitChanges": [
+        "Preparations for 3 new tanks",
+        "Supply depot fortified"
+      ]
+    },
+    {
+      "id": "event-003",
+      "date": "2024-05-24",
+      "spacelaneId": "planet-002-planet-003",
+      "attackerPlayerIds": ["player-003"],
+      "defenderPlayerIds": ["player-004"],
+      "summary": "Orks and Chaos forces clash on a contested spacelane, slowing reinforcements.",
+      "mechanics": "Both sides lost transport support and were forced to disengage.",
+      "unitChanges": [
+        "Chaos rhinos damaged",
+        "Ork mobs reduced by one unit"
+      ]
+    }
+  ]
+}

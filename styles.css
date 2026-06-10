@@ -154,6 +154,43 @@ strong { font-size: 1.05rem; }
   .detail-grid { grid-template-columns: 1fr; }
 }
 
+.timeline-list {
+  display: grid;
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.timeline-entry {
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+  border-radius: 20px;
+  padding: 16px;
+}
+
+.timeline-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+  align-items: baseline;
+}
+
+.timeline-entry strong {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.timeline-box {
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding-top: 12px;
+  margin-top: 12px;
+}
+
+.timeline-box p {
+  margin: 8px 0 0;
+}
+
 .breadcrumbs {
   display: flex;
   gap: 12px;

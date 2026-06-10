@@ -18,6 +18,10 @@ function playerById(data, id) {
   return byId(data.players, id);
 }
 
+function spacelaneById(data, id) {
+  return byId(data.spacelanes, id);
+}
+
 function determinePlanetStatus(data, planet) {
   const factionIds = [...new Set(
     planet.occupyingPlayers
@@ -82,12 +86,208 @@ function renderBreadcrumbs(container) {
   container.appendChild(crumb);
 }
 
-function clearDetails() {
+function formatImperialDate(dateString) {
+  const numeric = parseInt(dateString, 10);
+  if (!Number.isNaN(numeric) && String(numeric).length === 4) {
+    const year = 39000 + numeric;
+    const millennium = Math.floor(year / 1000);
+    return `${year} (M${millennium})`;
+  }
+
+  const parsed = Date.parse(dateString);
+  if (!Number.isNaN(parsed)) {
+    const year = new Date(parsed).getUTCFullYear();
+    const imperial = 39000 + year;
+    const millennium = Math.floor(imperial / 1000);
+    return `${imperial} (M${millennium})`;
+  }
+
+  return dateString;
+}
+
+function findSpacelane(data, spacelaneId) {
+  if (!spacelaneId) return null;
+  const direct = spacelaneById(data, spacelaneId);
+  if (direct) return direct;
+
+  const planetIds = data.planets.map((planet) => planet.id);
+  const matched = planetIds.filter((planetId) => spacelaneId.includes(planetId));
+  if (matched.length === 2) {
+    return data.spacelanes.find((lane) => (lane.from === matched[0] && lane.to === matched[1]) || (lane.from === matched[1] && lane.to === matched[0]));
+  }
+
+  return null;
+}
+
+function timelineLocationLabel(data, report) {
+  if (report.planetId) {
+    const planet = byId(data.planets, report.planetId);
+    return planet ? planet.name : `planet ${report.planetId}`;
+  }
+  if (report.spacelaneId) {
+    const lane = findSpacelane(data, report.spacelaneId);
+    if (lane) {
+      const from = byId(data.planets, lane.from);
+      const to = byId(data.planets, lane.to);
+      return `spacelane ${from?.name || lane.from} ↔ ${to?.name || lane.to}`;
+    }
+    return `spacelane ${report.spacelaneId}`;
+  }
+  return report.location || 'unknown location';
+}
+
+function timelinePlayerIds(report) {
+  if (Array.isArray(report.playerIds) && report.playerIds.length) return report.playerIds;
+  const ids = [];
+  if (Array.isArray(report.attackerPlayerIds)) ids.push(...report.attackerPlayerIds);
+  if (Array.isArray(report.defenderPlayerIds)) ids.push(...report.defenderPlayerIds);
+  return ids;
+}
+
+function timelineEntriesForPlanet(data, planetId) {
+  return (data.timeline || []).filter((entry) => {
+    if (entry.planetId === planetId) return true;
+    if (entry.spacelaneId) {
+      const lane = findSpacelane(data, entry.spacelaneId);
+      return lane && (lane.from === planetId || lane.to === planetId);
+    }
+    return false;
+  });
+}
+
+function timelineEntriesForPlayer(data, playerId) {
+  return data.timeline.filter((entry) => timelinePlayerIds(entry).includes(playerId));
+}
+
+function timelineEntriesForFaction(data, factionId) {
+  const factionPlayers = data.players.filter((player) => player.factionId === factionId).map((player) => player.id);
+  return data.timeline.filter((entry) => timelinePlayerIds(entry).some((id) => factionPlayers.includes(id)));
+}
+
+function renderRelatedTimeline(container, title, entries, data) {
+  container.appendChild(make('h3', { textContent: title }));
+  if (!entries.length) {
+    container.appendChild(make('p', { className: 'muted', textContent: 'No timeline entries are linked to this record yet.' }));
+    return;
+  }
+
+  entries.slice(0, 4).forEach((entry) => {
+    const dateLabel = entry.date ? formatImperialDate(entry.date) : 'Unknown date';
+    const location = timelineLocationLabel(data, entry);
+    const players = timelinePlayerIds(entry).join(', ') || 'Unknown players';
+    const details = entry.aftermath || entry.mechanics || entry.notes || 'No aftermath details yet.';
+
+    const box = make('div', { className: 'timeline-entry' }, [
+      make('div', { className: 'timeline-header' }, [
+        make('strong', { textContent: dateLabel }),
+        make('span', { className: 'muted', textContent: location }),
+      ]),
+      make('p', { textContent: `${players} were involved in this event.` }),
+      make('div', { className: 'timeline-box' }, [
+        make('strong', { textContent: 'Summary' }),
+        make('p', { textContent: entry.summary || entry.description || 'No summary provided.' }),
+      ]),
+      make('div', { className: 'timeline-box' }, [
+        make('strong', { textContent: 'Details' }),
+        make('p', { textContent: details }),
+      ]),
+    ]);
+
+    if (Array.isArray(entry.unitChanges) && entry.unitChanges.length) {
+      const list = make('ul', { className: 'timeline-listbox' });
+      entry.unitChanges.forEach((change) => {
+        list.appendChild(make('li', { textContent: change }));
+      });
+      box.appendChild(make('div', { className: 'timeline-box' }, [
+        make('strong', { textContent: 'Mechanical changes' }),
+        list,
+      ]));
+    }
+
+    container.appendChild(box);
+  });
+}
+
+function renderTimeline(data) {
+  const list = el('timeline-list');
+  if (!list) return;
+  list.innerHTML = '';
+
+  const reports = Array.isArray(data.timeline) ? [...data.timeline] : (Array.isArray(data.battleReports) ? [...data.battleReports] : []);
+  const parseSortValue = (value) => {
+    if (!value) return -Infinity;
+    const numeric = parseInt(value, 10);
+    if (!Number.isNaN(numeric) && String(numeric).length === 4) {
+      return numeric;
+    }
+    const parsed = Date.parse(value);
+    if (!Number.isNaN(parsed)) {
+      return new Date(parsed).getUTCFullYear();
+    }
+    return value;
+  };
+  reports.sort((a, b) => {
+    const aValue = parseSortValue(a.date);
+    const bValue = parseSortValue(b.date);
+    if (typeof aValue === 'number' && typeof bValue === 'number') {
+      return bValue - aValue;
+    }
+    if (typeof aValue === 'string' && typeof bValue === 'string') {
+      return bValue.localeCompare(aValue);
+    }
+    return 0;
+  });
+
+  reports.forEach((report) => {
+    const dateLabel = report.date ? formatImperialDate(report.date) : 'Unknown date';
+    const location = timelineLocationLabel(data, report);
+    const players = timelinePlayerIds(report).map((playerId) => playerById(data, playerId)?.name || playerId).join(', ') || 'Unknown players';
+
+    const entry = make('div', { className: 'timeline-entry' }, [
+      make('div', { className: 'timeline-header' }, [
+        make('strong', { textContent: dateLabel }),
+        make('span', { className: 'muted', textContent: `Location: ${location}` }),
+      ]),
+      make('p', { textContent: players ? `${players} are involved in this event.` : 'Participants are not linked yet.' }),
+      make('div', { className: 'timeline-box' }, [
+        make('strong', { textContent: 'Summary' }),
+        make('p', { textContent: report.summary || report.description || 'No summary provided.' }),
+      ]),
+    ]);
+
+    if (report.aftermath || report.mechanics || report.notes) {
+      entry.appendChild(make('div', { className: 'timeline-box' }, [
+        make('strong', { textContent: 'Aftermath' }),
+        make('p', { textContent: report.aftermath || report.mechanics || report.notes }),
+      ]));
+    }
+
+    if (Array.isArray(report.unitChanges) && report.unitChanges.length) {
+      const listbox = make('ul', { className: 'timeline-listbox' });
+      report.unitChanges.forEach((change) => {
+        listbox.appendChild(make('li', { textContent: change }));
+      });
+      entry.appendChild(make('div', { className: 'timeline-box' }, [
+        make('strong', { textContent: 'Mechanical changes' }),
+        listbox,
+      ]));
+    }
+
+    list.appendChild(entry);
+  });
+
+  if (!reports.length) {
+    list.appendChild(make('p', { className: 'muted', textContent: 'No timeline events are available yet.' }));
+  }
+}
+
+function clearDetails(data) {
   state.selectedEntity = null;
   state.history = [];
   el('details-empty').classList.remove('hidden');
   el('details-content').classList.add('hidden');
   el('details-content').innerHTML = '';
+  renderTimeline(data || state.data);
 }
 
 function selectEntity(type, id, label, preserveHistory = false) {
@@ -109,7 +309,7 @@ function goBack() {
 
 function renderDetails(data) {
   if (!state.selectedEntity) {
-    clearDetails();
+    clearDetails(data);
     return;
   }
 
@@ -213,6 +413,8 @@ function renderPlanetDetails(data, planetId, container) {
   } else {
     container.appendChild(make('div', { className: 'card' }, [make('p', { className: 'muted', textContent: 'No campaign events logged yet.' })]));
   }
+
+  renderRelatedTimeline(container, 'Related Timeline', timelineEntriesForPlanet(data, planet.id), data);
 }
 
 function renderFactionDetails(data, factionId, container) {
@@ -249,6 +451,8 @@ function renderFactionDetails(data, factionId, container) {
       container.appendChild(button);
     });
   }
+
+  renderRelatedTimeline(container, 'Related Timeline', timelineEntriesForFaction(data, faction.id), data);
 }
 
 function renderPlayerDetails(data, playerId, container) {
@@ -290,6 +494,8 @@ function renderPlayerDetails(data, playerId, container) {
       });
     }
   }
+
+  renderRelatedTimeline(container, 'Related Timeline', timelineEntriesForPlayer(data, player.id), data);
 }
 
 function renderUnitDetails(data, unitId, container) {
@@ -414,20 +620,23 @@ function selectPlanet(data, planetId) {
 }
 
 async function loadData() {
-  const [campaignResp, factionsResp, playersResp] = await Promise.all([
+  const [campaignResp, factionsResp, playersResp, timelineResp] = await Promise.all([
     fetch('./data/campaign.json'),
     fetch('./data/factions.json'),
     fetch('./data/players.json'),
+    fetch('./data/timeline.json'),
   ]);
 
   if (!campaignResp.ok) throw new Error(`Failed to load campaign.json (${campaignResp.status})`);
   if (!factionsResp.ok) throw new Error(`Failed to load factions.json (${factionsResp.status})`);
   if (!playersResp.ok) throw new Error(`Failed to load players.json (${playersResp.status})`);
+  if (!timelineResp.ok) throw new Error(`Failed to load timeline.json (${timelineResp.status})`);
 
   const campaign = await campaignResp.json();
   campaign.map = campaign.map || { width: 1200, height: 800, backgroundImage: "", notes: "" };
   const factionsData = await factionsResp.json();
   const playersData = await playersResp.json();
+  const timelineData = await timelineResp.json();
   const players = playersData.players || [];
 
   await Promise.all(players.map(async (player) => {
@@ -450,6 +659,7 @@ async function loadData() {
     players,
     planets: campaign.planets || [],
     spacelanes: campaign.spacelanes || [],
+    timeline: timelineData.timeline || [],
     battleReports: campaign.battleReports || [],
   };
 }
