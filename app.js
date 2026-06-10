@@ -87,9 +87,25 @@ function renderBreadcrumbs(container) {
 }
 
 function formatImperialDate(dateString) {
+  const exactDateMatch = /^\d{4}-\d{2}-\d{2}$/.test(dateString);
+  if (exactDateMatch) {
+    const parsed = Date.parse(dateString);
+    if (!Number.isNaN(parsed)) {
+      const date = new Date(parsed);
+      const year = date.getUTCFullYear();
+      const startOfYear = Date.UTC(year, 0, 1);
+      const dayOfYear = Math.floor((date.getTime() - startOfYear) / 86400000) + 1;
+      const segment = Math.max(1, Math.min(1000, Math.round((dayOfYear / 365) * 1000)));
+      const imperialYear = year + 40000;
+      const millennium = Math.floor(imperialYear / 1000);
+      const yearOfMillennium = imperialYear % 1000;
+      return `${String(segment).padStart(3, '0')}.${String(yearOfMillennium).padStart(3, '0')}.M${millennium}`;
+    }
+  }
+
   const numeric = parseInt(dateString, 10);
   if (!Number.isNaN(numeric) && String(numeric).length === 4) {
-    const year = 39000 + numeric;
+    const year = numeric + 40000;
     const millennium = Math.floor(year / 1000);
     return `${year} (M${millennium})`;
   }
@@ -97,7 +113,7 @@ function formatImperialDate(dateString) {
   const parsed = Date.parse(dateString);
   if (!Number.isNaN(parsed)) {
     const year = new Date(parsed).getUTCFullYear();
-    const imperial = 39000 + year;
+    const imperial = year + 40000;
     const millennium = Math.floor(imperial / 1000);
     return `${imperial} (M${millennium})`;
   }
