@@ -337,8 +337,8 @@ function renderUnitDetails(data, unitId, container) {
 
 function renderMap(data) {
   const svg = el("sector-map");
-  const width = data.campaign.map.width || 1200;
-  const height = data.campaign.map.height || 800;
+  const width = data.campaign?.map?.width || 1200;
+  const height = data.campaign?.map?.height || 800;
   svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
   svg.innerHTML = "";
 
@@ -425,6 +425,7 @@ async function loadData() {
   if (!playersResp.ok) throw new Error(`Failed to load players.json (${playersResp.status})`);
 
   const campaign = await campaignResp.json();
+  campaign.map = campaign.map || { width: 1200, height: 800, backgroundImage: "", notes: "" };
   const factionsData = await factionsResp.json();
   const playersData = await playersResp.json();
   const players = playersData.players || [];
