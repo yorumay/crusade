@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Crusade Sector Template</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Crusade Campaign Tracker</p>
+        <h1 id="campaign-name">Loading…</h1>
+        <p id="campaign-subtitle" class="muted"></p>
+      </div>
+      <div class="topbar-meta">
+        <div class="stat-card">
+          <span class="stat-label">Turn</span>
+          <strong id="campaign-turn">—</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Worlds</span>
+          <strong id="world-count">—</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Players</span>
+          <strong id="player-count">—</strong>
+        </div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <aside class="panel sidebar">
+        <section>
+          <h2>Factions</h2>
+          <div id="faction-list" class="stack"></div>
+        </section>
+
+        <section>
+          <h2>Players</h2>
+          <div id="player-list" class="stack"></div>
+        </section>
+
+        <section>
+          <h2>Armies</h2>
+          <div id="army-list" class="stack"></div>
+        </section>
+      </aside>
+
+      <section class="panel map-panel">
+        <div class="panel-heading">
+          <div>
+            <h2>Sector Map</h2>
+            <p class="muted">Click a world to inspect control, lore, and campaign history.</p>
+          </div>
+          <div class="legend">
+            <span><i class="dot neutral"></i> Neutral</span>
+            <span><i class="dot contested"></i> Contested</span>
+            <span><i class="dot protectors"></i> Protectors</span>
+            <span><i class="dot invaders"></i> Invaders</span>
+            <span><i class="dot despoilers"></i> Despoilers</span>
+          </div>
+        </div>
+
+        <div class="map-wrap">
+          <svg id="sector-map" viewBox="0 0 1200 800" role="img" aria-label="Crusade sector map"></svg>
+        </div>
+      </section>
+
+      <aside class="panel details-panel">
+        <section id="selected-world-empty" class="empty-state">
+          <h2>World Details</h2>
+          <p>Select a planet on the map to see its status, controlling players, and lore.</p>
+        </section>
+
+        <section id="selected-world" class="hidden">
+          <h2 id="world-name"></h2>
+          <p id="world-type" class="pill"></p>
+          <p id="world-description"></p>
+
+          <div class="detail-grid">
+            <div><span class="stat-label">Status</span><strong id="world-status"></strong></div>
+            <div><span class="stat-label">Value</span><strong id="world-value"></strong></div>
+            <div><span class="stat-label">Coordinates</span><strong id="world-coords"></strong></div>
+          </div>
+
+          <h3>Controlling Players</h3>
+          <ul id="world-controllers" class="list"></ul>
+
+          <h3>Lore</h3>
+          <p id="world-lore" class="muted"></p>
+
+          <h3>History</h3>
+          <div id="world-history" class="stack"></div>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
