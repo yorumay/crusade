@@ -1,0 +1,14 @@
+{
+  "units": [
+    {
+      "id": "unit-003",
+      "name": "Captain Aurelian",
+      "role": "Character",
+      "xp": 12,
+      "battleHonours": [
+        "Iron Resolve"
+      ],
+      "battleScars": []
+    }
+  ]
+}

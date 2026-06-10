@@ -1,0 +1,60 @@
+{
+  "players": [
+    {
+      "id": "player-001",
+      "name": "Magnus",
+      "factionId": "protectors",
+      "notes": "Primary commander and campaign organizer.",
+      "army": {
+        "id": "army-001",
+        "name": "117th Cadian Expedition",
+        "factionKeyword": "Astra Militarum",
+        "crusadePoints": 22,
+        "supplyLimit": 2000
+      },
+      "unitsFile": "player-001-units.json"
+    },
+    {
+      "id": "player-002",
+      "name": "Sarah",
+      "factionId": "protectors",
+      "notes": "",
+      "army": {
+        "id": "army-002",
+        "name": "Knights of Gryphonne",
+        "factionKeyword": "Adeptus Astartes",
+        "crusadePoints": 14,
+        "supplyLimit": 1500
+      },
+      "unitsFile": "player-002-units.json"
+    },
+    {
+      "id": "player-003",
+      "name": "Steve",
+      "factionId": "invaders",
+      "notes": "",
+      "army": {
+        "id": "army-003",
+        "name": "Waaagh! Skullkrumpa",
+        "factionKeyword": "Orks",
+        "crusadePoints": 18,
+        "supplyLimit": 2000
+      },
+      "unitsFile": "player-003-units.json"
+    },
+    {
+      "id": "player-004",
+      "name": "Alex",
+      "factionId": "despoilers",
+      "notes": "",
+      "army": {
+        "id": "army-004",
+        "name": "Crimson Apostates",
+        "factionKeyword": "Chaos Space Marines",
+        "crusadePoints": 27,
+        "supplyLimit": 2000
+      },
+      "unitsFile": "player-004-units.json"
+    }
+  ]
+}

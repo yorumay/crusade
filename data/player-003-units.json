@@ -1,0 +1,12 @@
+{
+  "units": [
+    {
+      "id": "unit-004",
+      "name": "Boss Krusha",
+      "role": "Character",
+      "xp": 14,
+      "battleHonours": [],
+      "battleScars": []
+    }
+  ]
+}

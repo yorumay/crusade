@@ -1,0 +1,22 @@
+{
+  "factions": [
+    {
+      "id": "protectors",
+      "name": "Protectors",
+      "description": "Defenders of Imperial and allied holdings.",
+      "color": "#3b82f6"
+    },
+    {
+      "id": "invaders",
+      "name": "Invaders",
+      "description": "Aggressors pushing into the sector.",
+      "color": "#f59e0b"
+    },
+    {
+      "id": "despoilers",
+      "name": "Despoilers",
+      "description": "Ruinous forces seeking to break the sector.",
+      "color": "#ef4444"
+    }
+  ]
+}
