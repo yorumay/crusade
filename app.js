@@ -943,8 +943,23 @@ async function loadData() {
   };
 }
 
+function updateHeader(data) {
+  const nameEl = el('campaign-name');
+  const subtitleEl = el('campaign-subtitle');
+  const turnEl = el('campaign-turn');
+  const worldCountEl = el('world-count');
+  const playerCountEl = el('player-count');
+
+  if (nameEl) nameEl.textContent = data.campaign.name;
+  if (subtitleEl) subtitleEl.textContent = data.campaign.subtitle;
+  if (turnEl) turnEl.textContent = data.campaign.turnLabel;
+  if (worldCountEl) worldCountEl.textContent = data.planets.length;
+  if (playerCountEl) playerCountEl.textContent = data.players.length;
+}
+
 async function init() {
   state.data = await loadData();
+  updateHeader(state.data);
   renderMap(state.data);
   clearDetails();
   // wire up map control buttons
