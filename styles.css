@@ -26,22 +26,15 @@ body {
   padding: 20px;
   overflow: hidden;
 }
-.eyebrow { margin: 0 0 6px; text-transform: uppercase; letter-spacing: .18em; color: #9db4ff; font-size: 12px; }
 h1, h2, h3, p { margin-top: 0; }
 h1 { margin-bottom: 6px; font-size: 2rem; }
 .muted { color: var(--muted); }
-/* Removed topbar header styles; keep stat-card styles for future use if needed */
-.topbar-meta { display: grid; grid-auto-flow: column; gap: 12px; }
-.stat-card, .panel {
+.panel {
   background: var(--panel);
   border: 1px solid var(--border);
   box-shadow: var(--shadow);
   backdrop-filter: blur(12px);
 }
-.stat-card {
-  min-width: 90px; padding: 12px 14px; border-radius: 18px;
-}
-.stat-label { display: block; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 4px; }
 strong { font-size: 1.05rem; }
 .layout {
   display: grid;
@@ -117,7 +110,6 @@ strong { font-size: 1.05rem; }
 .dot.protectors { background: #3b82f6; }
 .dot.invaders { background: #f59e0b; }
 .dot.despoilers { background: #ef4444; }
-.stack { display: grid; gap: 10px; }
 .card {
   background: var(--panel-strong);
   border: 1px solid var(--border);
@@ -302,8 +294,6 @@ strong { font-size: 1.05rem; }
   }
 }
 @media (max-width: 720px) {
-  .topbar { flex-direction: column; }
-  .topbar-meta { grid-auto-flow: row; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; }
   .detail-grid { grid-template-columns: 1fr; }
   .layout { gap: 14px; }
   .map-panel, .details-panel { padding: 16px; }

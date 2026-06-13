@@ -898,45 +898,6 @@ function enableMapInteractions(svg) {
   });
 }
 
-function centerOnPlanet(planetId, zoom) {
-  if (!mapSvg || !mapViewport) return;
-  const node = mapSvg.querySelector(`.world-node[data-planet-id="${planetId}"]`);
-  if (!node) return;
-  const circle = node.querySelector('.world-circle');
-  if (!circle) return;
-
-  const cx = parseFloat(circle.getAttribute('cx'));
-  const cy = parseFloat(circle.getAttribute('cy'));
-  const vb = mapSvg.viewBox.baseVal;
-
-  if (zoom != null) {
-    mapTransform.k = Math.max(0.3, Math.min(6, zoom));
-  }
-
-  const visibleW = vb.width / mapTransform.k;
-  const visibleH = vb.height / mapTransform.k;
-  const left = -mapTransform.x;
-  const top = -mapTransform.y;
-  const right = left + visibleW;
-  const bottom = top + visibleH;
-  const margin = 80 / mapTransform.k;
-
-  if (cx < left + margin) {
-    mapTransform.x = -(cx - margin);
-  } else if (cx > right - margin) {
-    mapTransform.x = -(cx - (visibleW - margin));
-  }
-
-  if (cy < top + margin) {
-    mapTransform.y = -(cy - margin);
-  } else if (cy > bottom - margin) {
-    mapTransform.y = -(cy - (visibleH - margin));
-  }
-
-  clampTransform(mapSvg, mapTransform);
-  updateViewportTransform();
-}
-
 async function loadData() {
   const [campaignResp, factionsResp, playersResp, timelineResp] = await Promise.all([
     fetch('./data/campaign.json'),
@@ -982,23 +943,8 @@ async function loadData() {
   };
 }
 
-function updateHeader(data) {
-  const nameEl = el('campaign-name');
-  const subtitleEl = el('campaign-subtitle');
-  const turnEl = el('campaign-turn');
-  const worldCountEl = el('world-count');
-  const playerCountEl = el('player-count');
-
-  if (nameEl) nameEl.textContent = data.campaign.name;
-  if (subtitleEl) subtitleEl.textContent = data.campaign.subtitle;
-  if (turnEl) turnEl.textContent = data.campaign.turnLabel;
-  if (worldCountEl) worldCountEl.textContent = data.planets.length;
-  if (playerCountEl) playerCountEl.textContent = data.players.length;
-}
-
 async function init() {
   state.data = await loadData();
-  updateHeader(state.data);
   renderMap(state.data);
   clearDetails();
   // wire up map control buttons
