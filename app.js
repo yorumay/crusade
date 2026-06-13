@@ -6,6 +6,10 @@ const state = {
 
 const el = (id) => document.getElementById(id);
 
+// Map transform state and references
+let mapTransform = { x: 0, y: 0, k: 1 };
+let mapSvg = null;
+let mapViewport = null;
 function byId(items, id) {
   return items.find((item) => item.id === id);
 }
@@ -76,13 +80,10 @@ function formatUnitCount(count) {
 function renderBreadcrumbs(container) {
   if (!state.history.length) return;
 
-  const crumb = make('div', { className: 'breadcrumbs' });
-  const backButton = make('button', { type: 'button', className: 'breadcrumb-back', textContent: '← Back' });
-  backButton.addEventListener('click', goBack);
-  crumb.appendChild(backButton);
-
   const label = state.history[state.history.length - 1];
-  crumb.appendChild(make('span', { textContent: `${label.type.charAt(0).toUpperCase() + label.type.slice(1)}: ${label.label}` }));
+  const crumb = make('div', { className: 'breadcrumbs' }, [
+    make('span', { textContent: `${label.type.charAt(0).toUpperCase() + label.type.slice(1)}: ${label.label}` }),
+  ]);
   container.appendChild(crumb);
 }
 
@@ -198,7 +199,7 @@ function renderRelatedTimeline(container, title, entries, data) {
         make('strong', { textContent: dateLabel }),
         make('span', { className: 'muted', textContent: location }),
       ]),
-      make('p', { textContent: `${players} were involved in this event.` }),
+      make('p', { textContent: `${players} .` }),
       make('div', { className: 'timeline-box' }, [
         make('strong', { textContent: 'Summary' }),
         make('p', { textContent: entry.summary || entry.description || 'No summary provided.' }),
@@ -297,9 +298,16 @@ function renderTimeline(data) {
   }
 }
 
+function deselectPlanet() {
+  if (!mapSvg) return;
+  const prev = mapSvg.querySelector('.world-node.selected');
+  if (prev) prev.classList.remove('selected');
+}
+
 function clearDetails(data) {
   state.selectedEntity = null;
   state.history = [];
+  deselectPlanet();
   el('details-empty').classList.remove('hidden');
   el('details-content').classList.add('hidden');
   el('details-content').innerHTML = '';
@@ -333,6 +341,17 @@ function renderDetails(data) {
   const content = el('details-content');
   content.classList.remove('hidden');
   content.innerHTML = '';
+
+  const previous = state.history[state.history.length - 1];
+  const buttonText = previous ? `← Back to ${previous.type.charAt(0).toUpperCase() + previous.type.slice(1)}` : '← Back to timeline';
+  const timelineButton = make('button', {
+    type: 'button',
+    className: 'breadcrumb-back',
+    textContent: buttonText,
+  });
+  timelineButton.addEventListener('click', previous ? goBack : () => clearDetails(data));
+  content.appendChild(timelineButton);
+
   renderBreadcrumbs(content);
 
   const { type, id } = state.selectedEntity;
@@ -558,6 +577,7 @@ function renderUnitDetails(data, unitId, container) {
 }
 
 function renderMap(data) {
+  console.log('renderMap', { planets: (data.planets || []).length, spacelanes: (data.spacelanes || []).length });
   const svg = el("sector-map");
   const width = data.campaign?.map?.width || 1200;
   const height = data.campaign?.map?.height || 800;
@@ -576,7 +596,14 @@ function renderMap(data) {
   `;
   svg.appendChild(defs);
 
-  data.spacelanes.forEach((lane) => {
+  // create a single viewport group so spacelanes + planets transform together
+  mapSvg = svg;
+  mapViewport = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  mapViewport.setAttribute('id', 'viewport');
+  svg.appendChild(mapViewport);
+
+  // draw spacelanes
+  (data.spacelanes || []).forEach((lane) => {
     const a = byId(data.planets, lane.from);
     const b = byId(data.planets, lane.to);
     if (!a || !b) return;
@@ -586,18 +613,20 @@ function renderMap(data) {
     line.setAttribute("x2", b.x);
     line.setAttribute("y2", b.y);
     line.setAttribute("class", "link");
-    svg.appendChild(line);
+    mapViewport.appendChild(line);
   });
 
-  data.planets.forEach((planet) => {
+  // draw planets
+  (data.planets || []).forEach((planet) => {
     const status = determinePlanetStatus(data, planet);
     const color = factionColor(data, status.factionId);
     const node = document.createElementNS("http://www.w3.org/2000/svg", "g");
     node.setAttribute("class", "world-node");
+    node.setAttribute('data-planet-id', planet.id);
     node.setAttribute("tabindex", "0");
     node.setAttribute("role", "button");
     node.setAttribute("aria-label", `${planet.name}, ${status.label}`);
-    node.addEventListener("click", () => selectPlanet(data, planet.id));
+    node.addEventListener("click", (ev) => { console.log('node click', planet.id, ev.target); selectPlanet(data, planet.id); });
     node.addEventListener("keydown", (e) => {
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
@@ -612,27 +641,300 @@ function renderMap(data) {
     pulse.setAttribute("fill", color);
     pulse.setAttribute("opacity", "0.2");
     pulse.setAttribute("filter", "url(#glow)");
+    pulse.setAttribute('class', 'world-pulse');
+    pulse.setAttribute('pointer-events', 'none');
 
     const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
     circle.setAttribute("cx", planet.x);
     circle.setAttribute("cy", planet.y);
     circle.setAttribute("r", 9);
     circle.setAttribute("fill", color);
+    circle.setAttribute('class', 'world-circle');
+    circle.setAttribute('pointer-events', 'visiblePainted');
+    // also bind click on the circle element directly for robustness
+    circle.addEventListener('click', (ev) => { console.log('circle click', planet.id, ev.target); selectPlanet(data, planet.id); });
+
+    const selectionRing = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    selectionRing.setAttribute("cx", planet.x);
+    selectionRing.setAttribute("cy", planet.y);
+    selectionRing.setAttribute("r", 26);
+    selectionRing.setAttribute('class', 'world-selection');
+    selectionRing.setAttribute('pointer-events', 'none');
+
+    const iconSize = 44;
+    const icon = document.createElementNS("http://www.w3.org/2000/svg", "image");
+    const typeSlug = `./icons/${String(planet.type || '').toLowerCase().replace(/\s+/g,'-')}.svg`;
+    icon.setAttribute('href', typeSlug);
+    icon.setAttributeNS('http://www.w3.org/1999/xlink', 'href', typeSlug);
+    icon.setAttribute('x', planet.x - iconSize / 2);
+    icon.setAttribute('y', planet.y - iconSize / 2);
+    icon.setAttribute('width', iconSize);
+    icon.setAttribute('height', iconSize);
+    icon.setAttribute('class', 'world-icon');
+    icon.setAttribute('pointer-events', 'none');
+    icon.style.pointerEvents = 'none';
+    try { icon.addEventListener && icon.addEventListener('load', () => { circle.setAttribute('visibility', 'hidden'); }); } catch (err) {}
+
+    const occupants = (planet.occupyingPlayers || []).map((playerId) => playerById(data, playerId)).filter(Boolean);
+    const dotsGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    dotsGroup.setAttribute('class', 'world-player-dots');
+    dotsGroup.setAttribute('pointer-events', 'none');
+    const playerIconSize = 16;
+    const dotGap = playerIconSize + 4;
+    const dotY = planet.y - 32;
+    const startX = planet.x - ((occupants.length - 1) * dotGap) / 2;
+    occupants.forEach((player, index) => {
+      const playerIcon = document.createElementNS("http://www.w3.org/2000/svg", "image");
+      const playerIconSrc = player.army?.icon || `./icons/players/${player.id}.svg`;
+      playerIcon.setAttribute('href', playerIconSrc);
+      playerIcon.setAttributeNS('http://www.w3.org/1999/xlink', 'href', playerIconSrc);
+      playerIcon.setAttribute('x', startX + index * dotGap - playerIconSize / 2);
+      playerIcon.setAttribute('y', dotY - playerIconSize / 2);
+      playerIcon.setAttribute('width', playerIconSize);
+      playerIcon.setAttribute('height', playerIconSize);
+      playerIcon.setAttribute('class', 'world-player-icon');
+      playerIcon.setAttribute('pointer-events', 'all');
+      playerIcon.style.pointerEvents = 'all';
+      playerIcon.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        selectEntity('player', player.id, player.name);
+      });
+      playerIcon.setAttribute('opacity', '0.95');
+      dotsGroup.appendChild(playerIcon);
+    });
+
+    const hit = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    hit.setAttribute("cx", planet.x);
+    hit.setAttribute("cy", planet.y);
+    hit.setAttribute("r", 14);
+    hit.setAttribute("fill", "transparent");
+    hit.setAttribute('pointer-events', 'all');
+    hit.addEventListener('click', () => selectPlanet(data, planet.id));
 
     const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-    text.setAttribute("x", planet.x + 14);
-    text.setAttribute("y", planet.y + 4);
+    text.setAttribute("x", planet.x);
+    text.setAttribute("y", planet.y + 20);
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('dominant-baseline', 'hanging');
     text.textContent = planet.name;
+    text.setAttribute('class', 'world-label');
+    text.setAttribute('pointer-events', 'none');
 
     node.appendChild(pulse);
+    node.appendChild(selectionRing);
     node.appendChild(circle);
+    node.appendChild(icon);
+    node.appendChild(dotsGroup);
+    node.appendChild(hit);
     node.appendChild(text);
-    svg.appendChild(node);
+    mapViewport.appendChild(node);
   });
+
+  // initialize transform
+  if (!mapTransform || typeof mapTransform.k !== 'number') mapTransform = { x: 0, y: 0, k: 1 };
+  clampTransform(svg, mapTransform);
+  updateViewportTransform();
+
+  // interactions
+  enableMapInteractions(svg);
 }
 
 function selectPlanet(data, planetId) {
+  deselectPlanet();
   selectEntity('planet', planetId);
+  highlightPlanet(planetId);
+}
+
+function highlightPlanet(planetId) {
+  if (!mapSvg) return;
+  const prev = mapSvg.querySelector('.world-node.selected');
+  if (prev) prev.classList.remove('selected');
+  const node = mapSvg.querySelector(`.world-node[data-planet-id="${planetId}"]`);
+  if (node) node.classList.add('selected');
+}
+
+function updateViewportTransform() {
+  if (!mapViewport) return;
+  mapViewport.setAttribute('transform', `translate(${mapTransform.x},${mapTransform.y}) scale(${mapTransform.k})`);
+}
+
+function screenToWorld(svg, clientX, clientY) {
+  try {
+    const pt = svg.createSVGPoint();
+    pt.x = clientX;
+    pt.y = clientY;
+    const ctm = svg.getScreenCTM();
+    if (ctm && ctm.inverse) {
+      const svgP = pt.matrixTransform(ctm.inverse());
+      if (Number.isFinite(svgP.x) && Number.isFinite(svgP.y)) return svgP;
+    }
+  } catch (err) {
+    // fall through to bounding rect fallback
+  }
+
+  // Fallback calculation using bounding rect and viewBox
+  const rect = svg.getBoundingClientRect();
+  const vb = svg.viewBox.baseVal;
+  const x = ((clientX - rect.left) / rect.width) * vb.width + vb.x;
+  const y = ((clientY - rect.top) / rect.height) * vb.height + vb.y;
+  return { x, y };
+}
+
+function clampTransform(svg, t) {
+  if (!svg) return;
+  const vb = svg.viewBox.baseVal;
+  const contentW = vb.width;
+  const contentH = vb.height;
+  const k = t.k;
+
+  const visibleW = vb.width; // displayed SVG user units
+  const visibleH = vb.height;
+
+  if (contentW * k <= visibleW) {
+    t.x = (visibleW - contentW * k) / 2;
+  } else {
+    const minX = visibleW - contentW * k;
+    const maxX = 0;
+    t.x = Math.min(maxX, Math.max(minX, t.x));
+  }
+
+  if (contentH * k <= visibleH) {
+    t.y = (visibleH - contentH * k) / 2;
+  } else {
+    const minY = visibleH - contentH * k;
+    const maxY = 0;
+    t.y = Math.min(maxY, Math.max(minY, t.y));
+  }
+}
+
+function zoomBy(factor, centerX, centerY) {
+  const svg = mapSvg;
+  if (!svg) return;
+  const S = centerX != null && centerY != null ? { x: centerX, y: centerY } : { x: svg.viewBox.baseVal.width / 2, y: svg.viewBox.baseVal.height / 2 };
+  const newK = Math.max(0.3, Math.min(6, mapTransform.k * factor));
+  const px = (S.x - mapTransform.x) / mapTransform.k;
+  const py = (S.y - mapTransform.y) / mapTransform.k;
+  mapTransform.k = newK;
+  mapTransform.x = S.x - px * newK;
+  mapTransform.y = S.y - py * newK;
+  clampTransform(svg, mapTransform);
+  updateViewportTransform();
+}
+
+function resetMap() {
+  mapTransform = { x: 0, y: 0, k: 1 };
+  if (mapSvg) clampTransform(mapSvg, mapTransform);
+  updateViewportTransform();
+}
+
+function enableMapInteractions(svg) {
+  if (!svg) return;
+  let dragging = false;
+  let dragMoved = false;
+  let dragStart = null;
+  let startTransform = null;
+
+  svg.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const delta = Math.sign(e.deltaY);
+    const zoomFactor = delta > 0 ? 1 / 1.15 : 1.15;
+    const newK = Math.max(0.3, Math.min(6, mapTransform.k * zoomFactor));
+
+    // point in SVG user coords
+    const svgPt = screenToWorld(svg, e.clientX, e.clientY);
+    const Sx = svgPt.x, Sy = svgPt.y;
+    const k = mapTransform.k, tx = mapTransform.x, ty = mapTransform.y;
+    // world point under cursor
+    const px = (Sx - tx) / k;
+    const py = (Sy - ty) / k;
+    // new translation so that px,py maps to same screen point S after scaling
+    const newTx = Sx - px * newK;
+    const newTy = Sy - py * newK;
+
+    mapTransform.k = newK;
+    mapTransform.x = newTx;
+    mapTransform.y = newTy;
+    clampTransform(svg, mapTransform);
+    updateViewportTransform();
+  }, { passive: false });
+
+  svg.addEventListener('pointerdown', (e) => {
+    // don't start a pan drag when the user is interacting with a planet node
+    const isOnNode = e.target && e.target.closest && e.target.closest('.world-node');
+    if (isOnNode) {
+      // allow click/interaction to proceed; don't begin panning
+      return;
+    }
+    dragging = true;
+    dragMoved = false;
+    try { svg.setPointerCapture(e.pointerId); } catch (err) {}
+    dragStart = screenToWorld(svg, e.clientX, e.clientY);
+    startTransform = { x: mapTransform.x, y: mapTransform.y };
+    svg.classList.add('grabbing');
+  });
+
+  svg.addEventListener('pointermove', (e) => {
+    if (!dragging) return;
+    dragMoved = true;
+    const current = screenToWorld(svg, e.clientX, e.clientY);
+    const dx = current.x - dragStart.x;
+    const dy = current.y - dragStart.y;
+    mapTransform.x = startTransform.x + dx;
+    mapTransform.y = startTransform.y + dy;
+    clampTransform(svg, mapTransform);
+    updateViewportTransform();
+  });
+
+  svg.addEventListener('pointerup', (e) => {
+    if (dragging && !dragMoved) {
+      const isOnNode = e.target && e.target.closest && e.target.closest('.world-node');
+      if (!isOnNode) {
+        clearDetails();
+      }
+    }
+    dragging = false;
+    try { svg.releasePointerCapture(e.pointerId); } catch (err) {}
+    svg.classList.remove('grabbing');
+  });
+}
+
+function centerOnPlanet(planetId, zoom) {
+  if (!mapSvg || !mapViewport) return;
+  const node = mapSvg.querySelector(`.world-node[data-planet-id="${planetId}"]`);
+  if (!node) return;
+  const circle = node.querySelector('.world-circle');
+  if (!circle) return;
+
+  const cx = parseFloat(circle.getAttribute('cx'));
+  const cy = parseFloat(circle.getAttribute('cy'));
+  const vb = mapSvg.viewBox.baseVal;
+
+  if (zoom != null) {
+    mapTransform.k = Math.max(0.3, Math.min(6, zoom));
+  }
+
+  const visibleW = vb.width / mapTransform.k;
+  const visibleH = vb.height / mapTransform.k;
+  const left = -mapTransform.x;
+  const top = -mapTransform.y;
+  const right = left + visibleW;
+  const bottom = top + visibleH;
+  const margin = 80 / mapTransform.k;
+
+  if (cx < left + margin) {
+    mapTransform.x = -(cx - margin);
+  } else if (cx > right - margin) {
+    mapTransform.x = -(cx - (visibleW - margin));
+  }
+
+  if (cy < top + margin) {
+    mapTransform.y = -(cy - margin);
+  } else if (cy > bottom - margin) {
+    mapTransform.y = -(cy - (visibleH - margin));
+  }
+
+  clampTransform(mapSvg, mapTransform);
+  updateViewportTransform();
 }
 
 async function loadData() {
@@ -681,11 +983,17 @@ async function loadData() {
 }
 
 function updateHeader(data) {
-  el('campaign-name').textContent = data.campaign.name;
-  el('campaign-subtitle').textContent = data.campaign.subtitle;
-  el('campaign-turn').textContent = data.campaign.turnLabel;
-  el('world-count').textContent = data.planets.length;
-  el('player-count').textContent = data.players.length;
+  const nameEl = el('campaign-name');
+  const subtitleEl = el('campaign-subtitle');
+  const turnEl = el('campaign-turn');
+  const worldCountEl = el('world-count');
+  const playerCountEl = el('player-count');
+
+  if (nameEl) nameEl.textContent = data.campaign.name;
+  if (subtitleEl) subtitleEl.textContent = data.campaign.subtitle;
+  if (turnEl) turnEl.textContent = data.campaign.turnLabel;
+  if (worldCountEl) worldCountEl.textContent = data.planets.length;
+  if (playerCountEl) playerCountEl.textContent = data.players.length;
 }
 
 async function init() {
@@ -693,6 +1001,13 @@ async function init() {
   updateHeader(state.data);
   renderMap(state.data);
   clearDetails();
+  // wire up map control buttons
+  const zin = el('zoom-in');
+  const zout = el('zoom-out');
+  const zreset = el('zoom-reset');
+  if (zin) zin.addEventListener('click', () => zoomBy(1.25));
+  if (zout) zout.addEventListener('click', () => zoomBy(1 / 1.25));
+  if (zreset) zreset.addEventListener('click', () => resetMap());
 }
 
 init().catch((error) => {

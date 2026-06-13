@@ -8,46 +8,25 @@
 </head>
 <body>
   <div class="app-shell">
-    <header class="topbar">
-      <div>
-        <p class="eyebrow">Crusade Campaign Tracker</p>
-        <h1 id="campaign-name">Loading…</h1>
-        <p id="campaign-subtitle" class="muted"></p>
-      </div>
-      <div class="topbar-meta">
-        <div class="stat-card">
-          <span class="stat-label">Turn</span>
-          <strong id="campaign-turn">—</strong>
-        </div>
-        <div class="stat-card">
-          <span class="stat-label">Worlds</span>
-          <strong id="world-count">—</strong>
-        </div>
-        <div class="stat-card">
-          <span class="stat-label">Players</span>
-          <strong id="player-count">—</strong>
-        </div>
-      </div>
-    </header>
-
     <main class="layout">
       <section class="panel map-panel">
-        <div class="panel-heading">
-          <div>
-            <h2>Sector Map</h2>
-            <p class="muted">Click a world to open its details on the right sidebar.</p>
-          </div>
-          <div class="legend">
-            <span><i class="dot neutral"></i> Neutral</span>
-            <span><i class="dot contested"></i> Contested</span>
-            <span><i class="dot protectors"></i> Protectors</span>
-            <span><i class="dot invaders"></i> Invaders</span>
-            <span><i class="dot despoilers"></i> Despoilers</span>
-          </div>
-        </div>
-
         <div class="map-wrap">
+          <div class="map-title">Sector Map</div>
           <svg id="sector-map" viewBox="0 0 1200 800" role="img" aria-label="Crusade sector map"></svg>
+          <div class="map-legend-overlay">
+            <div class="legend">
+              <span><i class="dot neutral"></i> Neutral</span>
+              <span><i class="dot contested"></i> Contested</span>
+              <span><i class="dot protectors"></i> Protectors</span>
+              <span><i class="dot invaders"></i> Invaders</span>
+              <span><i class="dot despoilers"></i> Despoilers</span>
+            </div>
+          </div>
+          <div class="map-controls">
+            <button id="zoom-in" class="map-btn">＋</button>
+            <button id="zoom-out" class="map-btn">−</button>
+            <button id="zoom-reset" class="map-btn">↺</button>
+          </div>
         </div>
       </section>
 
