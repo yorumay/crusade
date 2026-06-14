@@ -155,7 +155,7 @@ strong { font-size: 1.05rem; }
   z-index: 2;
   color: #f8fbff;
   font-family: 'Cinzel', 'Old English Text MT', Georgia, serif;
-  font-size: 1.1rem;
+  font-size: 2.1rem;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -193,7 +193,19 @@ strong { font-size: 1.05rem; }
 }
 #sector-map { width: 100%; height: 100%; display: block; }
 .map-background { display: block; }
-.map-wrap svg { touch-action: none; cursor: grab; }
+.map-background-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  pointer-events: none;
+  z-index: 0;
+}
+.map-wrap svg { touch-action: none; cursor: grab; position: relative; z-index: 1; }
 .map-wrap svg.grabbing { cursor: grabbing; }
 .map-controls {
   position: absolute;
@@ -207,6 +219,7 @@ strong { font-size: 1.05rem; }
   padding: 8px;
   border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.06);
+  z-index: 2;
 }
 .map-btn {
   background: rgba(255,255,255,0.06);

@@ -2,59 +2,143 @@
   "players": [
     {
       "id": "player-001",
-      "name": "Magnus",
-      "factionId": "protectors",
-      "notes": "Primary commander and campaign organizer.",
+      "name": "Jaska K.",
+      "factionId": "despoilers",
+      "notes": "n/a",
       "army": {
         "id": "army-001",
-        "name": "117th Cadian Expedition",
-        "factionKeyword": "Astra Militarum",
-        "crusadePoints": 22,
-        "supplyLimit": 2000
+        "name": "World Eaters",
+        "factionKeyword": "World Eaters",
+        "crusadePoints": 0,
+        "supplyLimit": 1000
       },
       "unitsFile": "player-001-units.json"
     },
     {
       "id": "player-002",
-      "name": "Sarah",
-      "factionId": "protectors",
+      "name": "Karri",
+      "factionId": "despoilers",
       "notes": "",
       "army": {
         "id": "army-002",
-        "name": "Knights of Gryphonne",
-        "factionKeyword": "Adeptus Astartes",
-        "crusadePoints": 14,
-        "supplyLimit": 1500
+        "name": "Emperor's Children",
+        "factionKeyword": "Emperor's Children",
+        "crusadePoints": 0,
+        "supplyLimit": 1000
       },
       "unitsFile": "player-002-units.json"
     },
     {
       "id": "player-003",
-      "name": "Steve",
-      "factionId": "invaders",
+      "name": "Paul",
+      "factionId": "protectors",
       "notes": "",
       "army": {
         "id": "army-003",
-        "name": "Waaagh! Skullkrumpa",
-        "factionKeyword": "Orks",
-        "crusadePoints": 18,
-        "supplyLimit": 2000
+        "name": "Adeptus Mechanicus",
+        "factionKeyword": "Adeptus Mechanicus",
+        "crusadePoints": 0,
+        "supplyLimit": 1000
       },
       "unitsFile": "player-003-units.json"
     },
-    {
+        {
       "id": "player-004",
-      "name": "Alex",
-      "factionId": "despoilers",
+      "name": "Arttu",
+      "factionId": "protectors",
       "notes": "",
       "army": {
         "id": "army-004",
-        "name": "Crimson Apostates",
-        "factionKeyword": "Chaos Space Marines",
-        "crusadePoints": 27,
-        "supplyLimit": 2000
+        "name": "Imperial Knights",
+        "factionKeyword": "Imperial Knights",
+        "crusadePoints": 0,
+        "supplyLimit": 1000
       },
       "unitsFile": "player-004-units.json"
+    },
+        {
+      "id": "player-005",
+      "name": "Jaska A",
+      "factionId": "protectors",
+      "notes": "",
+      "army": {
+        "id": "army-005",
+        "name": "Necrons",
+        "factionKeyword": "Necrons",
+        "crusadePoints": 0,
+        "supplyLimit": 1000
+      },
+      "unitsFile": "player-005-units.json"
+    },
+        {
+      "id": "player-006",
+      "name": "Miska",
+      "factionId": "invaders",
+      "notes": "",
+      "army": {
+        "id": "army-006",
+        "name": "Adepta Sororitas",
+        "factionKeyword": "Adepta Sororitas",
+        "crusadePoints": 0,
+        "supplyLimit": 1000
+      },
+      "unitsFile": "player-006-units.json"
+    },
+        {
+      "id": "player-007",
+      "name": "Tommi",
+      "factionId": "protectors",
+      "notes": "",
+      "army": {
+        "id": "army-007",
+        "name": "Adeptus Astartes",
+        "factionKeyword": "Adeptus Astartes",
+        "crusadePoints": 0,
+        "supplyLimit": 1000
+      },
+      "unitsFile": "player-007-units.json"
+    },
+        {
+      "id": "player-008",
+      "name": "Kai",
+      "factionId": "invaders",
+      "notes": "",
+      "army": {
+        "id": "army-008",
+        "name": "Adeptus Custodes",
+        "factionKeyword": "Adeptus Custodes",
+        "crusadePoints": 0,
+        "supplyLimit": 1000
+      },
+      "unitsFile": "player-008-units.json"
+    },
+        {
+      "id": "player-009",
+      "name": "Jorma",
+      "factionId": "despoilers",
+      "notes": "",
+      "army": {
+        "id": "army-009",
+        "name": "House Ærthegh",
+        "factionKeyword": "Chaos Knights & Daemons",
+        "crusadePoints": 0,
+        "supplyLimit": 1000
+      },
+      "unitsFile": "player-009-units.json"
+    },
+    {
+      "id": "player-010",
+      "name": "Elias",
+      "factionId": "invaders",
+      "notes": "",
+      "army": {
+        "id": "army-004",
+        "name": "Adeptus Astartes",
+        "factionKeyword": "Adeptus Astartes",
+        "crusadePoints": 0,
+        "supplyLimit": 1000
+      },
+      "unitsFile": "player-010-units.json"
     }
   ]
 }

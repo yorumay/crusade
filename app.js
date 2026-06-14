@@ -577,7 +577,13 @@ function renderUnitDetails(data, unitId, container) {
 }
 
 function renderMap(data) {
-  console.log('renderMap', { planets: (data.planets || []).length, spacelanes: (data.spacelanes || []).length });
+  console.log('renderMap called', { 
+    campaignExists: !!data.campaign,
+    mapExists: !!data.campaign?.map,
+    backgroundImage: data.campaign?.map?.backgroundImage,
+    planets: (data.planets || []).length, 
+    spacelanes: (data.spacelanes || []).length 
+  });
   const svg = el("sector-map");
   const width = data.campaign?.map?.width || 1764;
   const height = data.campaign?.map?.height || 1411;
@@ -593,19 +599,26 @@ function renderMap(data) {
         <feMergeNode in="SourceGraphic"></feMergeNode>
       </feMerge>
     </filter>
+    <filter id="drop-shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.5" flood-color="#000000"/>
+    </filter>
   `;
   svg.appendChild(defs);
 
-  // add background image if specified
+  // create a single viewport group so spacelanes + planets transform together
+  mapSvg = svg;
+  mapViewport = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  mapViewport.setAttribute('id', 'viewport');
+  svg.appendChild(mapViewport);
+
+  // add background image to viewport so it zooms with content
   if (data.campaign?.map?.backgroundImage) {
     let imagePath = data.campaign.map.backgroundImage;
-    // Ensure the path starts with ./ for relative resolution from root
     if (!imagePath.startsWith('./') && !imagePath.startsWith('/')) {
       imagePath = `./${imagePath}`;
     }
     const backgroundImage = document.createElementNS("http://www.w3.org/2000/svg", "image");
     backgroundImage.setAttribute('href', imagePath);
-    backgroundImage.setAttributeNS('http://www.w3.org/1999/xlink', 'href', imagePath);
     backgroundImage.setAttribute('x', 0);
     backgroundImage.setAttribute('y', 0);
     backgroundImage.setAttribute('width', width);
@@ -613,15 +626,15 @@ function renderMap(data) {
     backgroundImage.setAttribute('preserveAspectRatio', 'none');
     backgroundImage.setAttribute('class', 'map-background');
     backgroundImage.setAttribute('pointer-events', 'none');
-    console.log('Adding background image:', imagePath);
-    svg.appendChild(backgroundImage);
+    console.log('Added background image to viewport:', imagePath);
+    mapViewport.appendChild(backgroundImage);
   }
 
-  // create a single viewport group so spacelanes + planets transform together
-  mapSvg = svg;
-  mapViewport = document.createElementNS("http://www.w3.org/2000/svg", "g");
-  mapViewport.setAttribute('id', 'viewport');
-  svg.appendChild(mapViewport);
+  // Remove the HTML background element setting
+  const backgroundEl = el('map-background');
+  if (backgroundEl) {
+    backgroundEl.style.backgroundImage = '';
+  }
 
   // draw spacelanes
   (data.spacelanes || []).forEach((lane) => {
@@ -665,16 +678,6 @@ function renderMap(data) {
     pulse.setAttribute('class', 'world-pulse');
     pulse.setAttribute('pointer-events', 'none');
 
-    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-    circle.setAttribute("cx", planet.x);
-    circle.setAttribute("cy", planet.y);
-    circle.setAttribute("r", 9);
-    circle.setAttribute("fill", color);
-    circle.setAttribute('class', 'world-circle');
-    circle.setAttribute('pointer-events', 'visiblePainted');
-    // also bind click on the circle element directly for robustness
-    circle.addEventListener('click', (ev) => { console.log('circle click', planet.id, ev.target); selectPlanet(data, planet.id); });
-
     const selectionRing = document.createElementNS("http://www.w3.org/2000/svg", "circle");
     selectionRing.setAttribute("cx", planet.x);
     selectionRing.setAttribute("cy", planet.y);
@@ -692,9 +695,9 @@ function renderMap(data) {
     icon.setAttribute('width', iconSize);
     icon.setAttribute('height', iconSize);
     icon.setAttribute('class', 'world-icon');
+    icon.setAttribute('filter', 'url(#drop-shadow)');
     icon.setAttribute('pointer-events', 'none');
     icon.style.pointerEvents = 'none';
-    try { icon.addEventListener && icon.addEventListener('load', () => { circle.setAttribute('visibility', 'hidden'); }); } catch (err) {}
 
     const occupants = (planet.occupyingPlayers || []).map((playerId) => playerById(data, playerId)).filter(Boolean);
     const dotsGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
@@ -727,7 +730,7 @@ function renderMap(data) {
     const hit = document.createElementNS("http://www.w3.org/2000/svg", "circle");
     hit.setAttribute("cx", planet.x);
     hit.setAttribute("cy", planet.y);
-    hit.setAttribute("r", 14);
+    hit.setAttribute("r", 21);
     hit.setAttribute("fill", "transparent");
     hit.setAttribute('pointer-events', 'all');
     hit.addEventListener('click', () => selectPlanet(data, planet.id));
@@ -743,7 +746,6 @@ function renderMap(data) {
 
     node.appendChild(pulse);
     node.appendChild(selectionRing);
-    node.appendChild(circle);
     node.appendChild(icon);
     node.appendChild(dotsGroup);
     node.appendChild(hit);
@@ -932,7 +934,8 @@ async function loadData() {
   if (!playersResp.ok) throw new Error(`Failed to load players.json (${playersResp.status})`);
   if (!timelineResp.ok) throw new Error(`Failed to load timeline.json (${timelineResp.status})`);
 
-  const campaign = await campaignResp.json();
+  const campaignFile = await campaignResp.json();
+  const campaign = campaignFile.campaign || {};
   campaign.map = campaign.map || { width: 1200, height: 800, backgroundImage: "", notes: "" };
   const factionsData = await factionsResp.json();
   const playersData = await playersResp.json();
@@ -957,10 +960,10 @@ async function loadData() {
     campaign,
     factions: factionsData.factions || [],
     players,
-    planets: campaign.planets || [],
-    spacelanes: campaign.spacelanes || [],
+    planets: campaignFile.planets || [],
+    spacelanes: campaignFile.spacelanes || [],
     timeline: timelineData.timeline || [],
-    battleReports: campaign.battleReports || [],
+    battleReports: campaignFile.battleReports || [],
   };
 }
 

@@ -10,18 +10,10 @@
   <div class="app-shell">
     <main class="layout">
       <section class="panel map-panel">
-        <div class="map-wrap">
+        <div class="map-wrap" id="map-wrap">
+          <div class="map-background-image" id="map-background"></div>
           <div class="map-title">Sector Map</div>
           <svg id="sector-map" viewBox="0 0 1200 800" role="img" aria-label="Crusade sector map"></svg>
-          <div class="map-legend-overlay">
-            <div class="legend">
-              <span><i class="dot neutral"></i> Neutral</span>
-              <span><i class="dot contested"></i> Contested</span>
-              <span><i class="dot protectors"></i> Protectors</span>
-              <span><i class="dot invaders"></i> Invaders</span>
-              <span><i class="dot despoilers"></i> Despoilers</span>
-            </div>
-          </div>
           <div class="map-controls">
             <button id="zoom-in" class="map-btn">＋</button>
             <button id="zoom-out" class="map-btn">−</button>

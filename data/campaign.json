@@ -1,46 +1,35 @@
 {
   "campaign": {
-    "name": "The Gethsemane Sector Crusade",
-    "subtitle": "A static, JSON-driven campaign tracker for Warhammer 40,000 Crusade rules.",
-    "turnLabel": "Campaign Turn 1",
     "map": {
       "width": 1764,
       "height": 1411,
-      "backgroundImage": "./sector.png",
-      "notes": "Replace with your sector art when ready."
+      "backgroundImage": "sector.png"
     }
   },
   "planets": [
     {
       "id": "planet-001",
-      "name": "Vortannis Prime",
-      "type": "Hive World",
-      "x": 220,
-      "y": 180,
-      "strategicValue": 3,
-      "description": "A crowded hive world anchoring the sector's industrial output.",
+      "name": "Planet 01",
+      "type": "Cemetery World",
+      "x": 167,
+      "y": 125, 
+      "strategicValue": 0,
+      "description": "Lorem ipsom.",
       "occupyingPlayers": [
-        "player-001"
       ],
-      "lore": "The hive spires burn with a thousand forge fires each night.",
+      "lore": "Lorem Ipsum",
       "history": [
-        {
-          "turn": 1,
-          "event": "Secured by the Protectors."
-        }
       ]
     },
     {
       "id": "planet-002",
-      "name": "Damnatio",
+      "name": "Planet 02",
       "type": "Death World",
-      "x": 450,
-      "y": 300,
+      "x": 240,
+      "y": 115,
       "strategicValue": 2,
       "description": "A jungle world where the canopy swallows entire armies.",
       "occupyingPlayers": [
-        "player-001",
-        "player-003"
       ],
       "lore": "No map drawn here survives a single campaign season.",
       "history": [
@@ -52,26 +41,349 @@
     },
     {
       "id": "planet-003",
-      "name": "Heliarch",
+      "name": "Planet 03",
       "type": "Forge World",
-      "x": 720,
-      "y": 150,
+      "x": 257,
+      "y": 189,
       "strategicValue": 4,
       "description": "Ancient manufactoria and orbital docks dominate this world.",
-      "occupyingPlayers": [],
+      "occupyingPlayers": [
+                "player-001"
+
+      ],
       "lore": "Its machine-spirits are said to remember the first crusade fleets.",
       "history": []
     },
     {
       "id": "planet-004",
-      "name": "Morrow's Gate",
+      "name": "Planet 04",
       "type": "Agri World",
-      "x": 860,
-      "y": 420,
+      "x": 316,
+      "y": 257,
+      "strategicValue": 1,
+      "description": "A fertile supply world feeding nearby garrisons.",
+      "occupyingPlayers": [
+        "player-002"
+      ],
+      "lore": "Fields of grain stretch as far as the eye can see between shrine towers.",
+      "history": []
+    },
+    {
+      "id": "planet-005",
+      "name": "Planet 05",
+      "type": "Civilized World",
+      "x": 562,
+      "y": 128,
+      "strategicValue": 1,
+      "description": "A fertile supply world feeding nearby garrisons.",
+      "occupyingPlayers": [
+        "player-003"
+      ],
+      "lore": "Fields of grain stretch as far as the eye can see between shrine towers.",
+      "history": []
+    },
+    {
+      "id": "planet-006",
+      "name": "Planet 06",
+      "type": "Dead World",
+      "x": 536,
+      "y": 435,
       "strategicValue": 1,
       "description": "A fertile supply world feeding nearby garrisons.",
       "occupyingPlayers": [
         "player-004"
+      ],
+      "lore": "Fields of grain stretch as far as the eye can see between shrine towers.",
+      "history": []
+    },
+    {
+      "id": "planet-007",
+      "name": "Planet 07",
+      "type": "Feral World",
+      "x": 368,
+      "y": 482,
+      "strategicValue": 1,
+      "description": "A fertile supply world feeding nearby garrisons.",
+      "occupyingPlayers": [
+        "player-005"
+      ],
+      "lore": "Fields of grain stretch as far as the eye can see between shrine towers.",
+      "history": []
+    },
+    {
+      "id": "planet-008",
+      "name": "Planet 08",
+      "type": "Feudal World",
+      "x": 109,
+      "y": 688,
+      "strategicValue": 1,
+      "description": "A fertile supply world feeding nearby garrisons.",
+      "occupyingPlayers": [
+        "player-006"
+      ],
+      "lore": "Fields of grain stretch as far as the eye can see between shrine towers.",
+      "history": []
+    },
+    {
+      "id": "planet-009",
+      "name": "Planet 09",
+      "type": "Hive World",
+      "x": 270,
+      "y": 749,
+      "strategicValue": 1,
+      "description": "A fertile supply world feeding nearby garrisons.",
+      "occupyingPlayers": [
+        "player-007"
+      ],
+      "lore": "Fields of grain stretch as far as the eye can see between shrine towers.",
+      "history": []
+    },
+    {
+      "id": "planet-010",
+      "name": "Planet 10",
+      "type": "Research World",
+      "x": 183,
+      "y": 909,
+      "strategicValue": 1,
+      "description": "A fertile supply world feeding nearby garrisons.",
+      "occupyingPlayers": [
+        "player-008"
+      ],
+      "lore": "Fields of grain stretch as far as the eye can see between shrine towers.",
+      "history": []
+    },
+    {
+      "id": "planet-011",
+      "name": "Planet 11",
+      "type": "Agri World",
+      "x": 358,
+      "y": 1063,
+      "strategicValue": 1,
+      "description": "A fertile supply world feeding nearby garrisons.",
+      "occupyingPlayers": [
+        "player-009"
+      ],
+      "lore": "Fields of grain stretch as far as the eye can see between shrine towers.",
+      "history": []
+    },
+    {
+      "id": "planet-012",
+      "name": "Planet 12",
+      "type": "Agri World",
+      "x": 585,
+      "y": 1284,
+      "strategicValue": 1,
+      "description": "A fertile supply world feeding nearby garrisons.",
+      "occupyingPlayers": [
+        "player-010"
+      ],
+      "lore": "Fields of grain stretch as far as the eye can see between shrine towers.",
+      "history": []
+    },
+    {
+      "id": "planet-013",
+      "name": "Planet 13",
+      "type": "Agri World",
+      "x": 950,
+      "y": 1358,
+      "strategicValue": 1,
+      "description": "A fertile supply world feeding nearby garrisons.",
+      "occupyingPlayers": [
+      ],
+      "lore": "Fields of grain stretch as far as the eye can see between shrine towers.",
+      "history": []
+    },
+    {
+      "id": "planet-014",
+      "name": "Planet 14",
+      "type": "Agri World",
+      "x": 953,
+      "y": 838,
+      "strategicValue": 1,
+      "description": "A fertile supply world feeding nearby garrisons.",
+      "occupyingPlayers": [
+      ],
+      "lore": "Fields of grain stretch as far as the eye can see between shrine towers.",
+      "history": []
+    },
+    {
+      "id": "planet-015",
+      "name": "Planet 15",
+      "type": "Agri World",
+      "x": 972,
+      "y": 895,
+      "strategicValue": 1,
+      "description": "A fertile supply world feeding nearby garrisons.",
+      "occupyingPlayers": [
+      ],
+      "lore": "Fields of grain stretch as far as the eye can see between shrine towers.",
+      "history": []
+    },
+    {
+      "id": "planet-016",
+      "name": "Planet 16",
+      "type": "Agri World",
+      "x": 1142,
+      "y": 779,
+      "strategicValue": 1,
+      "description": "A fertile supply world feeding nearby garrisons.",
+      "occupyingPlayers": [
+      ],
+      "lore": "Fields of grain stretch as far as the eye can see between shrine towers.",
+      "history": []
+    },
+    {
+      "id": "planet-017",
+      "name": "Planet 17",
+      "type": "Agri World",
+      "x": 1058,
+      "y": 628,
+      "strategicValue": 1,
+      "description": "A fertile supply world feeding nearby garrisons.",
+      "occupyingPlayers": [
+      ],
+      "lore": "Fields of grain stretch as far as the eye can see between shrine towers.",
+      "history": []
+    },
+    {
+      "id": "planet-018",
+      "name": "Planet 18",
+      "type": "Agri World",
+      "x": 833,
+      "y": 553,
+      "strategicValue": 1,
+      "description": "A fertile supply world feeding nearby garrisons.",
+      "occupyingPlayers": [
+      ],
+      "lore": "Fields of grain stretch as far as the eye can see between shrine towers.",
+      "history": []
+    },
+    {
+      "id": "planet-019",
+      "name": "Planet 19",
+      "type": "Agri World",
+      "x": 1742,
+      "y": 1058,
+      "strategicValue": 1,
+      "description": "A fertile supply world feeding nearby garrisons.",
+      "occupyingPlayers": [
+      ],
+      "lore": "Fields of grain stretch as far as the eye can see between shrine towers.",
+      "history": []
+    },
+    {
+      "id": "planet-020",
+      "name": "Planet 20",
+      "type": "Agri World",
+      "x": 1277,
+      "y": 440,
+      "strategicValue": 1,
+      "description": "A fertile supply world feeding nearby garrisons.",
+      "occupyingPlayers": [
+      ],
+      "lore": "Fields of grain stretch as far as the eye can see between shrine towers.",
+      "history": []
+    },
+    {
+      "id": "planet-021",
+      "name": "Planet 21",
+      "type": "Agri World",
+      "x": 1295,
+      "y": 397,
+      "strategicValue": 1,
+      "description": "A fertile supply world feeding nearby garrisons.",
+      "occupyingPlayers": [
+      ],
+      "lore": "Fields of grain stretch as far as the eye can see between shrine towers.",
+      "history": []
+    },
+    {
+      "id": "planet-022",
+      "name": "Planet 22",
+      "type": "Agri World",
+      "x": 1420,
+      "y": 371,
+      "strategicValue": 1,
+      "description": "A fertile supply world feeding nearby garrisons.",
+      "occupyingPlayers": [
+      ],
+      "lore": "Fields of grain stretch as far as the eye can see between shrine towers.",
+      "history": []
+    },
+    {
+      "id": "planet-023",
+      "name": "Planet 23",
+      "type": "Agri World",
+      "x": 1367,
+      "y": 324,
+      "strategicValue": 1,
+      "description": "A fertile supply world feeding nearby garrisons.",
+      "occupyingPlayers": [
+      ],
+      "lore": "Fields of grain stretch as far as the eye can see between shrine towers.",
+      "history": []
+    },
+    {
+      "id": "planet-024",
+      "name": "Planet 24",
+      "type": "Agri World",
+      "x": 1236,
+      "y": 254,
+      "strategicValue": 1,
+      "description": "A fertile supply world feeding nearby garrisons.",
+      "occupyingPlayers": [
+      ],
+      "lore": "Fields of grain stretch as far as the eye can see between shrine towers.",
+      "history": []
+    },
+    {
+      "id": "planet-025",
+      "name": "Planet 25",
+      "type": "Agri World",
+      "x": 1688,
+      "y": 244,
+      "strategicValue": 1,
+      "description": "A fertile supply world feeding nearby garrisons.",
+      "occupyingPlayers": [
+      ],
+      "lore": "Fields of grain stretch as far as the eye can see between shrine towers.",
+      "history": []
+    },
+    {
+      "id": "planet-026",
+      "name": "Planet 26",
+      "type": "Agri World",
+      "x": 899,
+      "y": 313,
+      "strategicValue": 1,
+      "description": "A fertile supply world feeding nearby garrisons.",
+      "occupyingPlayers": [
+      ],
+      "lore": "Fields of grain stretch as far as the eye can see between shrine towers.",
+      "history": []
+    },
+    {
+      "id": "planet-027",
+      "name": "Planet 27",
+      "type": "Agri World",
+      "x": 650,
+      "y": 630,
+      "strategicValue": 1,
+      "description": "A fertile supply world feeding nearby garrisons.",
+      "occupyingPlayers": [
+      ],
+      "lore": "Fields of grain stretch as far as the eye can see between shrine towers.",
+      "history": []
+    },
+    {
+      "id": "planet-028",
+      "name": "Planet 28",
+      "type": "Agri World",
+      "x": 436,
+      "y": 749,
+      "strategicValue": 1,
+      "description": "A fertile supply world feeding nearby garrisons.",
+      "occupyingPlayers": [
       ],
       "lore": "Fields of grain stretch as far as the eye can see between shrine towers.",
       "history": []
@@ -87,23 +399,152 @@
       "to": "planet-003"
     },
     {
+      "from": "planet-002",
+      "to": "planet-005"
+    },
+    {
       "from": "planet-003",
       "to": "planet-004"
-    }
-  ],
-  "battleReports": [
+    },
     {
-      "id": "battle-001",
-      "date": "Campaign Turn 1",
-      "planetId": "planet-002",
-      "attackerPlayerIds": [
-        "player-003"
-      ],
-      "defenderPlayerIds": [
-        "player-001"
-      ],
-      "winnerFactionId": "protectors",
-      "summary": "The jungle advance was halted at the river line."
+      "from": "planet-004",
+      "to": "planet-005"
+    },
+    {
+      "from": "planet-004",
+      "to": "planet-006"
+    },
+    {
+      "from": "planet-004",
+      "to": "planet-007"
+    },
+    {
+      "from": "planet-005",
+      "to": "planet-006"
+    },
+    {
+      "from": "planet-005",
+      "to": "planet-026"
+    },
+    {
+      "from": "planet-006",
+      "to": "planet-007"
+    },
+    {
+      "from": "planet-006",
+      "to": "planet-026"
+    },
+    {
+      "from": "planet-006",
+      "to": "planet-027"
+    },
+    {
+      "from": "planet-007",
+      "to": "planet-008"
+    },
+    {
+      "from": "planet-008",
+      "to": "planet-009"
+    },
+    {
+      "from": "planet-009",
+      "to": "planet-010"
+    },
+    {
+      "from": "planet-009",
+      "to": "planet-028"
+    },
+    {
+      "from": "planet-010",
+      "to": "planet-011"
+    },
+    {
+      "from": "planet-011",
+      "to": "planet-012"
+    },
+    {
+      "from": "planet-011",
+      "to": "planet-028"
+    },
+    {
+      "from": "planet-012",
+      "to": "planet-028"
+    },
+    {
+      "from": "planet-013",
+      "to": "planet-015"
+    },
+    {
+      "from": "planet-014",
+      "to": "planet-015"
+    },
+    {
+      "from": "planet-014",
+      "to": "planet-016"
+    },
+    {
+      "from": "planet-014",
+      "to": "planet-027"
+    },
+    {
+      "from": "planet-015",
+      "to": "planet-016"
+    },
+    {
+      "from": "planet-016",
+      "to": "planet-017"
+    },
+    {
+      "from": "planet-016",
+      "to": "planet-019"
+    },
+    {
+      "from": "planet-017",
+      "to": "planet-018"
+    },
+    {
+      "from": "planet-017",
+      "to": "planet-020"
+    },
+    {
+      "from": "planet-018",
+      "to": "planet-026"
+    },
+    {
+      "from": "planet-018",
+      "to": "planet-027"
+    },
+    {
+      "from": "planet-020",
+      "to": "planet-021"
+    },
+    {
+      "from": "planet-021",
+      "to": "planet-022"
+    },
+    {
+      "from": "planet-021",
+      "to": "planet-024"
+    },
+    {
+      "from": "planet-022",
+      "to": "planet-023"
+    },
+    {
+      "from": "planet-022",
+      "to": "planet-025"
+    },
+    {
+      "from": "planet-023",
+      "to": "planet-024"
+    },
+    {
+      "from": "planet-024",
+      "to": "planet-026"
+    },
+    {
+      "from": "planet-027",
+      "to": "planet-028"
     }
   ]
 }
