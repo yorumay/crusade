@@ -4,9 +4,9 @@
     "subtitle": "A static, JSON-driven campaign tracker for Warhammer 40,000 Crusade rules.",
     "turnLabel": "Campaign Turn 1",
     "map": {
-      "width": 1200,
-      "height": 800,
-      "backgroundImage": "",
+      "width": 1764,
+      "height": 1411,
+      "backgroundImage": "./sector.png",
       "notes": "Replace with your sector art when ready."
     }
   },

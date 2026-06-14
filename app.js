@@ -579,8 +579,8 @@ function renderUnitDetails(data, unitId, container) {
 function renderMap(data) {
   console.log('renderMap', { planets: (data.planets || []).length, spacelanes: (data.spacelanes || []).length });
   const svg = el("sector-map");
-  const width = data.campaign?.map?.width || 1200;
-  const height = data.campaign?.map?.height || 800;
+  const width = data.campaign?.map?.width || 1764;
+  const height = data.campaign?.map?.height || 1411;
   svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
   svg.innerHTML = "";
 
@@ -595,6 +595,27 @@ function renderMap(data) {
     </filter>
   `;
   svg.appendChild(defs);
+
+  // add background image if specified
+  if (data.campaign?.map?.backgroundImage) {
+    let imagePath = data.campaign.map.backgroundImage;
+    // Ensure the path starts with ./ for relative resolution from root
+    if (!imagePath.startsWith('./') && !imagePath.startsWith('/')) {
+      imagePath = `./${imagePath}`;
+    }
+    const backgroundImage = document.createElementNS("http://www.w3.org/2000/svg", "image");
+    backgroundImage.setAttribute('href', imagePath);
+    backgroundImage.setAttributeNS('http://www.w3.org/1999/xlink', 'href', imagePath);
+    backgroundImage.setAttribute('x', 0);
+    backgroundImage.setAttribute('y', 0);
+    backgroundImage.setAttribute('width', width);
+    backgroundImage.setAttribute('height', height);
+    backgroundImage.setAttribute('preserveAspectRatio', 'none');
+    backgroundImage.setAttribute('class', 'map-background');
+    backgroundImage.setAttribute('pointer-events', 'none');
+    console.log('Adding background image:', imagePath);
+    svg.appendChild(backgroundImage);
+  }
 
   // create a single viewport group so spacelanes + planets transform together
   mapSvg = svg;
