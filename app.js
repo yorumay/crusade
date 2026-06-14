@@ -389,9 +389,10 @@ function renderPlanetDetails(data, planetId, container) {
 
   container.appendChild(make('p', { textContent: planet.description }));
 
-  const stats = make('div', { className: 'detail-grid' }, [
-    make('div', {}, [make('span', { className: 'stat-label', textContent: 'Coordinates' }), make('strong', { textContent: `${planet.x}, ${planet.y}` })]),
-  ]);
+  container.appendChild(make('h3', { textContent: 'Lore' }));
+  container.appendChild(make('p', { className: 'muted', textContent: planet.lore || 'No lore entered yet.' }));
+
+
   container.appendChild(stats);
 
   const factionIds = [...new Set(
@@ -430,9 +431,6 @@ function renderPlanetDetails(data, planetId, container) {
       container.appendChild(button);
     });
   }
-
-  container.appendChild(make('h3', { textContent: 'Lore' }));
-  container.appendChild(make('p', { className: 'muted', textContent: planet.lore || 'No lore entered yet.' }));
 
   container.appendChild(make('h3', { textContent: 'History' }));
   if (planet.history.length) {
