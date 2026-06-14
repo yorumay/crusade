@@ -382,8 +382,7 @@ function renderPlanetDetails(data, planetId, container) {
 
   container.appendChild(make('div', { className: 'panel-heading' }, [
     make('div', {}, [
-      make('h2', { textContent: planet.name }),
-      make('p', { className: 'muted', textContent: 'Planet information and controlling forces.' }),
+      make('h2', { textContent: planet.name })
     ]),
     make('span', { className: 'pill', textContent: `${planet.type} · ${statusFaction ? statusFaction.name : status.label}` }),
   ]));
@@ -391,8 +390,6 @@ function renderPlanetDetails(data, planetId, container) {
   container.appendChild(make('p', { textContent: planet.description }));
 
   const stats = make('div', { className: 'detail-grid' }, [
-    make('div', {}, [make('span', { className: 'stat-label', textContent: 'Status' }), make('strong', { textContent: status.label, style: `color: ${factionColor(data, status.factionId)}` })]),
-    make('div', {}, [make('span', { className: 'stat-label', textContent: 'Value' }), make('strong', { textContent: planet.strategicValue })]),
     make('div', {}, [make('span', { className: 'stat-label', textContent: 'Coordinates' }), make('strong', { textContent: `${planet.x}, ${planet.y}` })]),
   ]);
   container.appendChild(stats);
@@ -448,8 +445,6 @@ function renderPlanetDetails(data, planetId, container) {
   } else {
     container.appendChild(make('div', { className: 'card' }, [make('p', { className: 'muted', textContent: 'No campaign events logged yet.' })]));
   }
-
-  renderRelatedTimeline(container, 'Related Timeline', timelineEntriesForPlanet(data, planet.id), data);
 }
 
 function renderFactionDetails(data, factionId, container) {
