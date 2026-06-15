@@ -139,6 +139,9 @@ strong { font-size: 1.05rem; }
   height: 100%;
   border-radius: 22px;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid var(--border);
   background:
     linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
@@ -162,37 +165,21 @@ strong { font-size: 1.05rem; }
   pointer-events: none;
 }
 
-.map-legend-overlay {
-  position: absolute;
-  left: 18px;
-  bottom: 18px;
-  z-index: 2;
-  background: rgba(5, 11, 24, 0.8);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 18px;
-  padding: 12px 14px;
-  backdrop-filter: blur(14px);
+#sector-map { 
+  width: 100%; 
+  height: 100%; 
+  max-width: 100%;
+  max-height: 100%;
+  display: block; 
+  overflow: hidden;
+  will-change: transform;
 }
-
-.map-legend-overlay .legend {
-  display: grid;
-  gap: 10px;
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.map-legend-overlay .legend span {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.map-legend-overlay .dot {
-  width: 10px;
-  height: 10px;
-}
-#sector-map { width: 100%; height: 100%; display: block; }
-.map-background { display: block; }
+.map-background { 
+  display: block;
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+ }
 .map-background-image {
   position: absolute;
   top: 0;
@@ -270,10 +257,10 @@ strong { font-size: 1.05rem; }
 }
 .world-node text {
   fill: #f8fbff;
-  font-size: 13px;
+  font-size: 18px;
   paint-order: stroke;
   stroke: rgba(0,0,0,0.55);
-  stroke-width: 3px;
+  stroke-width: 5px;
   stroke-linejoin: round;
   font-family: 'Cinzel', 'Old English Text MT', Georgia, serif;
   font-weight: 700;
@@ -281,7 +268,7 @@ strong { font-size: 1.05rem; }
 }
 
 .world-label {
-  font-size: 12px;
+  font-size: 18px;
   text-transform: none;
   letter-spacing: 0.1em;
   fill: #e7ecff;
@@ -527,4 +514,51 @@ hr {
 
 #sector-map.map-faded-state .link.map-highlight-link {
   opacity: 0.75;
+}
+
+/* --- Sidebar Planet Control Tracker --- */
+.control-tracker-card {
+  background: var(--panel-strong);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 16px;
+  margin: 14px 0;
+  display: grid;
+  gap: 12px;
+}
+
+.control-bar-group {
+  display: grid;
+  gap: 6px;
+}
+
+.control-bar-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.control-steps-track {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 3px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 4px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.control-pip {
+  height: 8px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.05);
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.control-pip.filled {
+  box-shadow: 0 0 5px var(--pip-glow);
 }

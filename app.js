@@ -56,7 +56,6 @@ function make(tag, attrs = {}, children = []) {
   if (attrs.type) node.type = attrs.type;
   if (attrs.style) node.style.cssText = attrs.style;
   
-  // FIX: Change this line to accept 0 as a valid text content value
   if (attrs.textContent !== undefined && attrs.textContent !== null) node.textContent = attrs.textContent;
   
   if (attrs.html) node.innerHTML = attrs.html;
@@ -104,7 +103,7 @@ function formatImperialDate(dateString) {
       const imperialYear = year + 40000;
       const millennium = Math.floor(imperialYear / 1000);
       const yearOfMillennium = imperialYear % 1000;
-      return `${String(segment).padStart(3, '0')}${String(yearOfMillennium).padStart(3, '0')}.M${millennium}`;
+      return `${String(segment).padStart(3, '0')}${String(yearOfMillennium).padStart(3, '0').M}${millennium}`;
     }
   }
 
@@ -196,7 +195,6 @@ function renderRelatedTimeline(container, title, entries, data) {
     const dateLabel = entry.date ? formatImperialDate(entry.date) : 'Unknown date';
     const location = timelineLocationLabel(data, entry);
     
-    // FIX: Map the player IDs to actual player names
     const players = timelinePlayerIds(entry)
       .map((playerId) => playerById(data, playerId)?.name || playerId)
       .join(', ') || 'Unknown players';
@@ -318,7 +316,6 @@ function clearDetails(data) {
   state.history = [];
   deselectPlanet();
   
-  // Clear map dimming filters
   applyMapVisualFilters(null, null);
   
   el('details-empty').classList.remove('hidden');
@@ -335,7 +332,6 @@ function selectEntity(type, id, label, preserveHistory = false) {
 
   state.selectedEntity = { type, id, label };
   
-  // Apply visual highlights to map nodes and lines based on selection
   applyMapVisualFilters(type, id);
   
   renderDetails(state.data);
@@ -407,7 +403,43 @@ function renderPlanetDetails(data, planetId, container) {
 
   container.appendChild(make('p', { textContent: planet.description }));
 
-  // --- SEPARATION: Factions ---
+  // ========================================================
+  // INTEGRATED FEATURE: Faction Strategic Control Pips Card
+  // ========================================================
+  const controlValues = planet.controlSteps || { protectors: 0, invaders: 0, despoilers: 0 };
+  const trackerCard = make('div', { className: 'control-tracker-card' });
+  
+  trackerCard.appendChild(make('h4', { 
+    textContent: 'Faction Strategic Control', 
+    style: 'margin: 0 0 4px 0; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text);' 
+  }));
+
+  (data.factions || []).forEach(faction => {
+    const filledCount = Math.max(0, Math.min(12, controlValues[faction.id] || 0));
+    
+    const labelRow = make('div', { className: 'control-bar-label' }, [
+      make('span', { textContent: faction.name, style: `color: ${faction.color}; font-weight: 600;` }),
+      make('span', { className: 'muted', textContent: `${filledCount} / 12 Steps` })
+    ]);
+
+    const trackRow = make('div', { className: 'control-steps-track' });
+
+    for (let i = 1; i <= 12; i++) {
+      const isFilled = i <= filledCount;
+      const pipAttrs = { className: `control-pip ${isFilled ? 'filled' : ''}` };
+      
+      if (isFilled) {
+        pipAttrs.style = `--pip-glow: ${faction.color}; background-color: ${faction.color};`;
+      }
+      trackRow.appendChild(make('div', pipAttrs));
+    }
+
+    trackerCard.appendChild(make('div', { className: 'control-bar-group' }, [labelRow, trackRow]));
+  });
+
+  container.appendChild(trackerCard);
+  // ========================================================
+
   container.appendChild(make('hr'));
 
   const factionIds = [...new Set(
@@ -427,7 +459,6 @@ function renderPlanetDetails(data, planetId, container) {
     });
   }
 
-  // --- SEPARATION: Controlling Players ---
   container.appendChild(make('hr'));
 
   container.appendChild(make('h3', { textContent: 'Controlling Players' }));
@@ -450,13 +481,11 @@ function renderPlanetDetails(data, planetId, container) {
     });
   }
 
-  // --- SEPARATION: Lore ---
   container.appendChild(make('hr'));
 
   container.appendChild(make('h3', { textContent: 'Lore' }));
   container.appendChild(make('p', { className: 'muted', textContent: planet.lore || 'No lore entered yet.' }));
 
-  // --- SEPARATION: History ---
   container.appendChild(make('hr'));
 
   container.appendChild(make('h3', { textContent: 'History' }));
@@ -471,7 +500,6 @@ function renderPlanetDetails(data, planetId, container) {
     container.appendChild(make('div', { className: 'card' }, [make('p', { className: 'muted', textContent: 'No campaign events logged yet.' })]));
   }
 
-  // --- SEPARATION: Related Timeline ---
   container.appendChild(make('hr'));
 
   renderRelatedTimeline(container, 'Related Timeline', timelineEntriesForPlanet(data, planet.id), data);
@@ -512,7 +540,6 @@ function renderFactionDetails(data, factionId, container) {
     });
   }
 
-  // --- SEPARATION: Related Timeline ---
   container.appendChild(make('hr'));
 
   renderRelatedTimeline(container, 'Related Timeline', timelineEntriesForFaction(data, faction.id), data);
@@ -549,7 +576,6 @@ function renderPlayerDetails(data, playerId, container) {
       make('p', { html: `<span class="stat-label">Units</span><strong>${playerUnits.length}</strong>` }), 
     ]));
 
-    // --- SEPARATION: Units ---
     container.appendChild(make('hr'));
 
     container.appendChild(make('h3', { textContent: 'Units' }));
@@ -562,7 +588,6 @@ function renderPlayerDetails(data, playerId, container) {
     }
   }
 
-  // --- SEPARATION: Related Timeline ---
   container.appendChild(make('hr'));
 
   renderRelatedTimeline(container, 'Related Timeline', timelineEntriesForPlayer(data, player.id), data);
@@ -597,7 +622,6 @@ function renderUnitDetails(data, unitId, container) {
     make('div', {}, [make('span', { className: 'stat-label', textContent: 'Enemy Units Destroyed' }), make('strong', { textContent: found.kill})])
   ]);
   container.appendChild(stats);
-
 }
 
 function renderMap(data) {
@@ -609,8 +633,8 @@ function renderMap(data) {
     spacelanes: (data.spacelanes || []).length 
   });
   const svg = el("sector-map");
-  const width = data.campaign?.map?.width || 1764;
-  const height = data.campaign?.map?.height || 1411;
+  const width = data.campaign?.map?.width;
+  const height = data.campaign?.map?.height;
   svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
   svg.innerHTML = "";
 
@@ -629,13 +653,11 @@ function renderMap(data) {
   `;
   svg.appendChild(defs);
 
-  // create a single viewport group so spacelanes + planets transform together
   mapSvg = svg;
   mapViewport = document.createElementNS("http://www.w3.org/2000/svg", "g");
   mapViewport.setAttribute('id', 'viewport');
   svg.appendChild(mapViewport);
 
-  // add background image to viewport so it zooms with content
   if (data.campaign?.map?.backgroundImage) {
     let imagePath = data.campaign.map.backgroundImage;
     if (!imagePath.startsWith('./') && !imagePath.startsWith('/')) {
@@ -654,13 +676,12 @@ function renderMap(data) {
     mapViewport.appendChild(backgroundImage);
   }
 
-  // Remove the HTML background element setting
   const backgroundEl = el('map-background');
   if (backgroundEl) {
     backgroundEl.style.backgroundImage = '';
   }
 
-  // draw spacelanes
+  // Draw spacelanes — width increased by 2x (via direct inline strokeWidth styling value override)
   (data.spacelanes || []).forEach((lane) => {
     const a = byId(data.planets, lane.from);
     const b = byId(data.planets, lane.to);
@@ -671,10 +692,11 @@ function renderMap(data) {
     line.setAttribute("x2", b.x);
     line.setAttribute("y2", b.y);
     line.setAttribute("class", "link");
+    line.style.strokeWidth = "4px"; // 2x route width enhancement scale
     mapViewport.appendChild(line);
   });
 
-  // draw planets
+  // Draw planets with 2x layout scale metrics configured
   (data.planets || []).forEach((planet) => {
     const status = determinePlanetStatus(data, planet);
     const color = factionColor(data, status.factionId);
@@ -695,7 +717,7 @@ function renderMap(data) {
     const pulse = document.createElementNS("http://www.w3.org/2000/svg", "circle");
     pulse.setAttribute("cx", planet.x);
     pulse.setAttribute("cy", planet.y);
-    pulse.setAttribute("r", 16);
+    pulse.setAttribute("r", 32); // Scaled from 16
     pulse.setAttribute("fill", color);
     pulse.setAttribute("opacity", "0.2");
     pulse.setAttribute("filter", "url(#glow)");
@@ -705,16 +727,16 @@ function renderMap(data) {
     const selectionRing = document.createElementNS("http://www.w3.org/2000/svg", "circle");
     selectionRing.setAttribute("cx", planet.x);
     selectionRing.setAttribute("cy", planet.y);
-    selectionRing.setAttribute("r", 26);
+    selectionRing.setAttribute("r", 52); // Scaled from 26
     selectionRing.setAttribute('class', 'world-selection');
     selectionRing.setAttribute('pointer-events', 'none');
 
-    const iconSize = 44;
+    const iconSize = 88; // 2x size enhancement scale from original 44
     const icon = document.createElementNS("http://www.w3.org/2000/svg", "image");
     const typeSlug = `./icons/${String(planet.type || '').toLowerCase().replace(/\s+/g,'-')}.svg`;
     icon.setAttribute('href', typeSlug);
     icon.setAttributeNS('http://www.w3.org/1999/xlink', 'href', typeSlug);
-    icon.setAttribute('x', planet.x - iconSize / 2);
+    icon.setAttribute('x', planet.x - iconSize / 2); // Center alignment calculations updated (-44)
     icon.setAttribute('y', planet.y - iconSize / 2);
     icon.setAttribute('width', iconSize);
     icon.setAttribute('height', iconSize);
@@ -727,9 +749,9 @@ function renderMap(data) {
     const dotsGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
     dotsGroup.setAttribute('class', 'world-player-dots');
     dotsGroup.setAttribute('pointer-events', 'none');
-    const playerIconSize = 16;
-    const dotGap = playerIconSize + 4;
-    const dotY = planet.y - 32;
+    const playerIconSize = 32; // 2x size enhancement scale from original 16
+    const dotGap = playerIconSize + 6;
+    const dotY = planet.y - 64; // Raised offset coordinates from -32 to float cleanly over larger world profiles
     const startX = planet.x - ((occupants.length - 1) * dotGap) / 2;
     occupants.forEach((player, index) => {
       const playerIcon = document.createElementNS("http://www.w3.org/2000/svg", "image");
@@ -754,14 +776,14 @@ function renderMap(data) {
     const hit = document.createElementNS("http://www.w3.org/2000/svg", "circle");
     hit.setAttribute("cx", planet.x);
     hit.setAttribute("cy", planet.y);
-    hit.setAttribute("r", 21);
+    hit.setAttribute("r", 42); // Expanded interaction landing map size from 21
     hit.setAttribute("fill", "transparent");
     hit.setAttribute('pointer-events', 'all');
     hit.addEventListener('click', () => selectPlanet(data, planet.id));
 
     const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
     text.setAttribute("x", planet.x);
-    text.setAttribute("y", planet.y + 20);
+    text.setAttribute("y", planet.y + 54); // Shifted down labels offset slightly to clear bigger bounds
     text.setAttribute('text-anchor', 'middle');
     text.setAttribute('dominant-baseline', 'hanging');
     text.textContent = planet.name;
@@ -777,12 +799,10 @@ function renderMap(data) {
     mapViewport.appendChild(node);
   });
 
-  // initialize transform
   if (!mapTransform || typeof mapTransform.k !== 'number') mapTransform = { x: 0, y: 0, k: 1 };
   clampTransform(svg, mapTransform);
   updateViewportTransform();
 
-  // interactions
   enableMapInteractions(svg);
 }
 
@@ -815,11 +835,8 @@ function screenToWorld(svg, clientX, clientY) {
       const svgP = pt.matrixTransform(ctm.inverse());
       if (Number.isFinite(svgP.x) && Number.isFinite(svgP.y)) return svgP;
     }
-  } catch (err) {
-    // fall through to bounding rect fallback
-  }
+  } catch (err) {}
 
-  // Fallback calculation using bounding rect and viewBox
   const rect = svg.getBoundingClientRect();
   const vb = svg.viewBox.baseVal;
   const x = ((clientX - rect.left) / rect.width) * vb.width + vb.x;
@@ -834,21 +851,36 @@ function clampTransform(svg, t) {
   const contentH = vb.height;
   const k = t.k;
 
-  const visibleW = vb.width; // displayed SVG user units
-  const visibleH = vb.height;
+  // Measure container layout to adjust bounds for widescreen empty borders
+  const rect = svg.getBoundingClientRect();
+  let visibleW = contentW;
+  
+  if (rect.height && rect.width) {
+    const containerAspect = rect.width / rect.height;
+    const mapAspect = contentW / contentH;
+    
+    // If screen is wider than the map image aspect ratio
+    if (containerAspect > mapAspect) {
+      visibleW = containerAspect * contentH;
+    }
+  }
 
+  // --- X Axis (Left / Right) Edge Collision ---
   if (contentW * k <= visibleW) {
+    // Zoomed out: anchor perfectly in the middle of the available space
     t.x = (visibleW - contentW * k) / 2;
   } else {
+    // Zoomed in: lock boundaries exactly between the visual limits of the art canvas
     const minX = visibleW - contentW * k;
     const maxX = 0;
     t.x = Math.min(maxX, Math.max(minX, t.x));
   }
 
-  if (contentH * k <= visibleH) {
-    t.y = (visibleH - contentH * k) / 2;
+  // --- Y Axis (Top / Bottom) Edge Collision ---
+  if (contentH * k <= contentH) {
+    t.y = (contentH - contentH * k) / 2;
   } else {
-    const minY = visibleH - contentH * k;
+    const minY = contentH - contentH * k;
     const maxY = 0;
     t.y = Math.min(maxY, Math.max(minY, t.y));
   }
@@ -878,8 +910,12 @@ function enableMapInteractions(svg) {
   if (!svg) return;
   let dragging = false;
   let dragMoved = false;
-  let dragStart = null;
-  let startTransform = null;
+  
+  // Store drag anchors using standard window pixels to isolate the movement delta smoothly
+  let startX = 0;
+  let startY = 0;
+  let startTx = 0;
+  let startTy = 0;
 
   svg.addEventListener('wheel', (e) => {
     e.preventDefault();
@@ -887,14 +923,11 @@ function enableMapInteractions(svg) {
     const zoomFactor = delta > 0 ? 1 / 1.15 : 1.15;
     const newK = Math.max(0.3, Math.min(6, mapTransform.k * zoomFactor));
 
-    // point in SVG user coords
     const svgPt = screenToWorld(svg, e.clientX, e.clientY);
     const Sx = svgPt.x, Sy = svgPt.y;
     const k = mapTransform.k, tx = mapTransform.x, ty = mapTransform.y;
-    // world point under cursor
     const px = (Sx - tx) / k;
     const py = (Sy - ty) / k;
-    // new translation so that px,py maps to same screen point S after scaling
     const newTx = Sx - px * newK;
     const newTy = Sy - py * newK;
 
@@ -906,28 +939,33 @@ function enableMapInteractions(svg) {
   }, { passive: false });
 
   svg.addEventListener('pointerdown', (e) => {
-    // don't start a pan drag when the user is interacting with a planet node
     const isOnNode = e.target && e.target.closest && e.target.closest('.world-node');
-    if (isOnNode) {
-      // allow click/interaction to proceed; don't begin panning
-      return;
-    }
+    if (isOnNode) return;
+    
     dragging = true;
     dragMoved = false;
     try { svg.setPointerCapture(e.pointerId); } catch (err) {}
-    dragStart = screenToWorld(svg, e.clientX, e.clientY);
-    startTransform = { x: mapTransform.x, y: mapTransform.y };
+    
+    // Track standard screen tracking coordinates for the delta tracking mechanics
+    startX = e.clientX;
+    startY = e.clientY;
+    startTx = mapTransform.x;
+    startTy = mapTransform.y;
     svg.classList.add('grabbing');
   });
 
   svg.addEventListener('pointermove', (e) => {
     if (!dragging) return;
     dragMoved = true;
-    const current = screenToWorld(svg, e.clientX, e.clientY);
-    const dx = current.x - dragStart.x;
-    const dy = current.y - dragStart.y;
-    mapTransform.x = startTransform.x + dx;
-    mapTransform.y = startTransform.y + dy;
+    
+    // Calculate basic screen pixel distance changes directly
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    
+    // Update structural layout map positioning transforms
+    mapTransform.x = startTx + dx;
+    mapTransform.y = startTy + dy;
+    
     clampTransform(svg, mapTransform);
     updateViewportTransform();
   });
@@ -960,7 +998,7 @@ async function loadData() {
 
   const campaignFile = await campaignResp.json();
   const campaign = campaignFile.campaign || {};
-  campaign.map = campaign.map || { width: 1200, height: 800, backgroundImage: "", notes: "" };
+  // campaign.map = campaign.map || { width: 1200, height: 800, backgroundImage: "", notes: "" };
   const factionsData = await factionsResp.json();
   const playersData = await playersResp.json();
   const timelineData = await timelineResp.json();
@@ -1011,12 +1049,10 @@ async function init() {
   renderMap(state.data);
   clearDetails();
 
-  // Render and mount the bottom nav bar elements
   renderCampaignNavigationBar(state.data);
   
   clearDetails();
   
-  // wire up map control buttons
   const zin = el('zoom-in');
   const zout = el('zoom-out');
   const zreset = el('zoom-reset');
@@ -1037,62 +1073,52 @@ init().catch((error) => {
 });
 
 function applyMapVisualFilters(type, id) {
-  // Grab the exact SVG element by its ID matching your index.html layout
   const mapElement = el('sector-map');
   if (!mapElement) return;
 
-  // Clear current active highlighters
   mapElement.classList.remove('map-faded-state');
   mapElement.querySelectorAll('.map-highlight-node').forEach(n => n.classList.remove('map-highlight-node'));
   mapElement.querySelectorAll('.map-highlight-link').forEach(l => l.classList.remove('map-highlight-link'));
 
-  // If no specific faction/player entity is chosen, match against bottom bar tab context
   if (!type && state.activeNavFactionId) {
     type = 'faction';
     id = state.activeNavFactionId;
   }
 
-  if (!type) return; // Map returns to fully lit state
+  if (!type) return;
 
   const data = state.data;
   let targetPlanetIds = [];
 
   if (type === 'planet') {
     mapElement.classList.add('map-faded-state');
-    // Finds the specific planet element inside your SVG structure
     const node = mapElement.querySelector(`.world-node[data-planet-id="${id}"], [id="${id}"]`);
     if (node) node.classList.add('map-highlight-node');
     return;
   }
 
   if (type === 'player') {
-    // Find all planets occupied by this player
     targetPlanetIds = (data.planets || [])
       .filter(p => p.occupyingPlayers && p.occupyingPlayers.includes(id))
       .map(p => p.id);
   } else if (type === 'faction') {
-    // Find players belonging to this faction
     const factionPlayers = (data.players || [])
       .filter(p => p.factionId === id)
       .map(p => p.id);
     
-    // Find all planets occupied by any player of this faction
     targetPlanetIds = (data.planets || [])
       .filter(p => p.occupyingPlayers && p.occupyingPlayers.some(pid => factionPlayers.includes(pid)))
       .map(p => p.id);
   }
 
-  // If we have targeted coordinates to emphasize, set opacity layers
   if (targetPlanetIds.length > 0) {
     mapElement.classList.add('map-faded-state');
     
-    // Highlight nodes
     targetPlanetIds.forEach(pid => {
       const node = mapElement.querySelector(`.world-node[data-planet-id="${pid}"], [id="${pid}"]`);
       if (node) node.classList.add('map-highlight-node');
     });
 
-    // Highlight connecting links where endpoints match target list
     (data.spacelanes || []).forEach((lane, index) => {
       if (targetPlanetIds.includes(lane.from) && targetPlanetIds.includes(lane.to)) {
         const lines = mapElement.querySelectorAll('.link');
@@ -1107,18 +1133,15 @@ function renderCampaignNavigationBar(data) {
   const linksContainer = el('player-nav-links');
   if (!tabsContainer || !linksContainer) return;
 
-  // Clear independent layout nodes cleanly
   tabsContainer.innerHTML = '';
   linksContainer.innerHTML = '';
 
-  // Render Faction Tabs directly into their dedicated wrapper panel
   (data.factions || []).forEach(faction => {
     const tab = document.createElement('button');
     tab.type = 'button';
     tab.className = `faction-tab ${state.activeNavFactionId === faction.id ? 'active' : ''}`;
     tab.textContent = faction.name;
     
-    // Set custom accent indicators if active
     if (state.activeNavFactionId === faction.id) {
       tab.style.color = faction.color;
       tab.style.borderColor = `${faction.color}44`;
@@ -1128,7 +1151,6 @@ function renderCampaignNavigationBar(data) {
       e.stopPropagation();
       if (state.activeNavFactionId === faction.id) {
         state.activeNavFactionId = null;
-        // If clearDetails() resets things, pass campaign data to avoid blank loops
         clearDetails(data); 
       } else {
         state.activeNavFactionId = faction.id;
@@ -1141,14 +1163,12 @@ function renderCampaignNavigationBar(data) {
     tabsContainer.appendChild(tab);
   });
 
-  // Manage highlight fade states inside the separate link container row
   if (state.activeNavFactionId) {
     linksContainer.classList.add('nav-faded-state');
   } else {
     linksContainer.classList.remove('nav-faded-state');
   }
 
-  // Render Players directly inside the bottom line tray
   (data.players || []).forEach(player => {
     const faction = factionById(data, player.factionId);
     const isMatchingFaction = player.factionId === state.activeNavFactionId;
@@ -1170,3 +1190,4 @@ function renderCampaignNavigationBar(data) {
     linksContainer.appendChild(pBtn);
   });
 }
+
