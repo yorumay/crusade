@@ -2,14 +2,15 @@ const state = {
   data: null,
   selectedEntity: null,
   history: [],
+  activeNavFactionId: null // Tracks active bottom navigation tab
 };
 
 const el = (id) => document.getElementById(id);
 
 // Map transform state and references
 let mapTransform = { x: 0, y: 0, k: 1 };
-let mapSvg = null;
-let mapViewport = null;
+// let mapSvg = null;
+// let mapViewport = null;
 function byId(items, id) {
   return items.find((item) => item.id === id);
 }
@@ -54,7 +55,10 @@ function make(tag, attrs = {}, children = []) {
   if (attrs.className) node.className = attrs.className;
   if (attrs.type) node.type = attrs.type;
   if (attrs.style) node.style.cssText = attrs.style;
-  if (attrs.textContent) node.textContent = attrs.textContent;
+  
+  // FIX: Change this line to accept 0 as a valid text content value
+  if (attrs.textContent !== undefined && attrs.textContent !== null) node.textContent = attrs.textContent;
+  
   if (attrs.html) node.innerHTML = attrs.html;
   Object.entries(attrs).forEach(([key, value]) => {
     if (key === 'className' || key === 'type' || key === 'style' || key === 'textContent' || key === 'html') return;
@@ -100,7 +104,7 @@ function formatImperialDate(dateString) {
       const imperialYear = year + 40000;
       const millennium = Math.floor(imperialYear / 1000);
       const yearOfMillennium = imperialYear % 1000;
-      return `${String(segment).padStart(3, '0')}.${String(yearOfMillennium).padStart(3, '0')}.M${millennium}`;
+      return `${String(segment).padStart(3, '0')}${String(yearOfMillennium).padStart(3, '0')}.M${millennium}`;
     }
   }
 
@@ -191,7 +195,12 @@ function renderRelatedTimeline(container, title, entries, data) {
   entries.slice(0, 4).forEach((entry) => {
     const dateLabel = entry.date ? formatImperialDate(entry.date) : 'Unknown date';
     const location = timelineLocationLabel(data, entry);
-    const players = timelinePlayerIds(entry).join(', ') || 'Unknown players';
+    
+    // FIX: Map the player IDs to actual player names
+    const players = timelinePlayerIds(entry)
+      .map((playerId) => playerById(data, playerId)?.name || playerId)
+      .join(', ') || 'Unknown players';
+      
     const details = entry.aftermath || entry.mechanics || entry.notes || 'No aftermath details yet.';
 
     const box = make('div', { className: 'timeline-entry' }, [
@@ -199,7 +208,7 @@ function renderRelatedTimeline(container, title, entries, data) {
         make('strong', { textContent: dateLabel }),
         make('span', { className: 'muted', textContent: location }),
       ]),
-      make('p', { textContent: `${players} .` }),
+      make('p', { textContent: players ? `${players} are involved.` : 'Participants are not linked yet.' }),
       make('div', { className: 'timeline-box' }, [
         make('strong', { textContent: 'Summary' }),
         make('p', { textContent: entry.summary || entry.description || 'No summary provided.' }),
@@ -308,6 +317,10 @@ function clearDetails(data) {
   state.selectedEntity = null;
   state.history = [];
   deselectPlanet();
+  
+  // Clear map dimming filters
+  applyMapVisualFilters(null, null);
+  
   el('details-empty').classList.remove('hidden');
   el('details-content').classList.add('hidden');
   el('details-content').innerHTML = '';
@@ -321,6 +334,10 @@ function selectEntity(type, id, label, preserveHistory = false) {
   }
 
   state.selectedEntity = { type, id, label };
+  
+  // Apply visual highlights to map nodes and lines based on selection
+  applyMapVisualFilters(type, id);
+  
   renderDetails(state.data);
 }
 
@@ -382,18 +399,16 @@ function renderPlanetDetails(data, planetId, container) {
 
   container.appendChild(make('div', { className: 'panel-heading' }, [
     make('div', {}, [
-      make('h2', { textContent: planet.name })
+      make('h2', { textContent: planet.name }),
+      make('p', { className: 'muted', textContent: 'Planet information and controlling forces.' }),
     ]),
     make('span', { className: 'pill', textContent: `${planet.type} · ${statusFaction ? statusFaction.name : status.label}` }),
   ]));
 
   container.appendChild(make('p', { textContent: planet.description }));
 
-  container.appendChild(make('h3', { textContent: 'Lore' }));
-  container.appendChild(make('p', { className: 'muted', textContent: planet.lore || 'No lore entered yet.' }));
-
-
-  container.appendChild(stats);
+  // --- SEPARATION: Factions ---
+  container.appendChild(make('hr'));
 
   const factionIds = [...new Set(
     planet.occupyingPlayers
@@ -411,6 +426,9 @@ function renderPlanetDetails(data, planetId, container) {
       container.appendChild(createEntityButton(faction ? faction.name : factionId, 'faction', factionId));
     });
   }
+
+  // --- SEPARATION: Controlling Players ---
+  container.appendChild(make('hr'));
 
   container.appendChild(make('h3', { textContent: 'Controlling Players' }));
   if (!planet.occupyingPlayers.length) {
@@ -432,6 +450,15 @@ function renderPlanetDetails(data, planetId, container) {
     });
   }
 
+  // --- SEPARATION: Lore ---
+  container.appendChild(make('hr'));
+
+  container.appendChild(make('h3', { textContent: 'Lore' }));
+  container.appendChild(make('p', { className: 'muted', textContent: planet.lore || 'No lore entered yet.' }));
+
+  // --- SEPARATION: History ---
+  container.appendChild(make('hr'));
+
   container.appendChild(make('h3', { textContent: 'History' }));
   if (planet.history.length) {
     planet.history.forEach((entry) => {
@@ -443,6 +470,11 @@ function renderPlanetDetails(data, planetId, container) {
   } else {
     container.appendChild(make('div', { className: 'card' }, [make('p', { className: 'muted', textContent: 'No campaign events logged yet.' })]));
   }
+
+  // --- SEPARATION: Related Timeline ---
+  container.appendChild(make('hr'));
+
+  renderRelatedTimeline(container, 'Related Timeline', timelineEntriesForPlanet(data, planet.id), data);
 }
 
 function renderFactionDetails(data, factionId, container) {
@@ -480,6 +512,9 @@ function renderFactionDetails(data, factionId, container) {
     });
   }
 
+  // --- SEPARATION: Related Timeline ---
+  container.appendChild(make('hr'));
+
   renderRelatedTimeline(container, 'Related Timeline', timelineEntriesForFaction(data, faction.id), data);
 }
 
@@ -489,6 +524,7 @@ function renderPlayerDetails(data, playerId, container) {
 
   const faction = factionById(data, player.factionId);
   const army = player.army;
+  const playerUnits = player.units || []; 
 
   container.appendChild(make('div', { className: 'panel-heading' }, [
     make('div', {}, [
@@ -510,18 +546,24 @@ function renderPlayerDetails(data, playerId, container) {
       make('p', { className: 'muted', textContent: army.factionKeyword }),
       make('p', { html: `<span class="stat-label">Crusade Points</span><strong>${army.crusadePoints}</strong>` }),
       make('p', { html: `<span class="stat-label">Supply Limit</span><strong>${army.supplyLimit}</strong>` }),
-      make('p', { html: `<span class="stat-label">Units</span><strong>${army.units?.length || 0}</strong>` }),
+      make('p', { html: `<span class="stat-label">Units</span><strong>${playerUnits.length}</strong>` }), 
     ]));
 
+    // --- SEPARATION: Units ---
+    container.appendChild(make('hr'));
+
     container.appendChild(make('h3', { textContent: 'Units' }));
-    if (!army.units.length) {
+    if (!playerUnits.length) { 
       container.appendChild(make('p', { className: 'muted', textContent: 'No units are currently listed for this army.' }));
     } else {
-      army.units.forEach((unit) => {
+      playerUnits.forEach((unit) => {
         container.appendChild(createEntityButton(`${unit.name} · ${unit.role}`, 'unit', unit.id));
       });
     }
   }
+
+  // --- SEPARATION: Related Timeline ---
+  container.appendChild(make('hr'));
 
   renderRelatedTimeline(container, 'Related Timeline', timelineEntriesForPlayer(data, player.id), data);
 }
@@ -550,23 +592,12 @@ function renderUnitDetails(data, unitId, container) {
   ]));
 
   const stats = make('div', { className: 'detail-grid' }, [
-    make('div', {}, [make('span', { className: 'stat-label', textContent: 'Experience' }), make('strong', { textContent: found.xp })]),
-    make('div', {}, [make('span', { className: 'stat-label', textContent: 'Battle Honours' }), make('strong', { textContent: found.battleHonours.join(', ') || 'None' })]),
-    make('div', {}, [make('span', { className: 'stat-label', textContent: 'Battle Scars' }), make('strong', { textContent: found.battleScars.join(', ') || 'None' })]),
+    make('div', {}, [make('span', { className: 'stat-label', textContent: 'Battles Played' }), make('strong', { textContent: found.play})]),
+    make('div', {}, [make('span', { className: 'stat-label', textContent: 'Battles Survived' }), make('strong', { textContent: found.survive})]),
+    make('div', {}, [make('span', { className: 'stat-label', textContent: 'Enemy Units Destroyed' }), make('strong', { textContent: found.kill})])
   ]);
   container.appendChild(stats);
 
-  if (player) {
-    container.appendChild(make('h3', { textContent: 'Owner' }));
-    container.appendChild(createEntityButton(player.name, 'player', player.id));
-  }
-  if (army) {
-    container.appendChild(make('h3', { textContent: 'Army' }));
-    container.appendChild(make('div', { className: 'card' }, [
-      make('h3', { textContent: army.name }),
-      make('p', { className: 'muted', textContent: army.factionKeyword }),
-    ]));
-  }
 }
 
 function renderMap(data) {
@@ -979,6 +1010,12 @@ async function init() {
   updateHeader(state.data);
   renderMap(state.data);
   clearDetails();
+
+  // Render and mount the bottom nav bar elements
+  renderCampaignNavigationBar(state.data);
+  
+  clearDetails();
+  
   // wire up map control buttons
   const zin = el('zoom-in');
   const zout = el('zoom-out');
@@ -998,3 +1035,138 @@ init().catch((error) => {
   `;
   console.error(error);
 });
+
+function applyMapVisualFilters(type, id) {
+  // Grab the exact SVG element by its ID matching your index.html layout
+  const mapElement = el('sector-map');
+  if (!mapElement) return;
+
+  // Clear current active highlighters
+  mapElement.classList.remove('map-faded-state');
+  mapElement.querySelectorAll('.map-highlight-node').forEach(n => n.classList.remove('map-highlight-node'));
+  mapElement.querySelectorAll('.map-highlight-link').forEach(l => l.classList.remove('map-highlight-link'));
+
+  // If no specific faction/player entity is chosen, match against bottom bar tab context
+  if (!type && state.activeNavFactionId) {
+    type = 'faction';
+    id = state.activeNavFactionId;
+  }
+
+  if (!type) return; // Map returns to fully lit state
+
+  const data = state.data;
+  let targetPlanetIds = [];
+
+  if (type === 'planet') {
+    mapElement.classList.add('map-faded-state');
+    // Finds the specific planet element inside your SVG structure
+    const node = mapElement.querySelector(`.world-node[data-planet-id="${id}"], [id="${id}"]`);
+    if (node) node.classList.add('map-highlight-node');
+    return;
+  }
+
+  if (type === 'player') {
+    // Find all planets occupied by this player
+    targetPlanetIds = (data.planets || [])
+      .filter(p => p.occupyingPlayers && p.occupyingPlayers.includes(id))
+      .map(p => p.id);
+  } else if (type === 'faction') {
+    // Find players belonging to this faction
+    const factionPlayers = (data.players || [])
+      .filter(p => p.factionId === id)
+      .map(p => p.id);
+    
+    // Find all planets occupied by any player of this faction
+    targetPlanetIds = (data.planets || [])
+      .filter(p => p.occupyingPlayers && p.occupyingPlayers.some(pid => factionPlayers.includes(pid)))
+      .map(p => p.id);
+  }
+
+  // If we have targeted coordinates to emphasize, set opacity layers
+  if (targetPlanetIds.length > 0) {
+    mapElement.classList.add('map-faded-state');
+    
+    // Highlight nodes
+    targetPlanetIds.forEach(pid => {
+      const node = mapElement.querySelector(`.world-node[data-planet-id="${pid}"], [id="${pid}"]`);
+      if (node) node.classList.add('map-highlight-node');
+    });
+
+    // Highlight connecting links where endpoints match target list
+    (data.spacelanes || []).forEach((lane, index) => {
+      if (targetPlanetIds.includes(lane.from) && targetPlanetIds.includes(lane.to)) {
+        const lines = mapElement.querySelectorAll('.link');
+        if (lines[index]) lines[index].classList.add('map-highlight-link');
+      }
+    });
+  }
+}
+
+function renderCampaignNavigationBar(data) {
+  const tabsContainer = el('faction-nav-tabs');
+  const linksContainer = el('player-nav-links');
+  if (!tabsContainer || !linksContainer) return;
+
+  // Clear independent layout nodes cleanly
+  tabsContainer.innerHTML = '';
+  linksContainer.innerHTML = '';
+
+  // Render Faction Tabs directly into their dedicated wrapper panel
+  (data.factions || []).forEach(faction => {
+    const tab = document.createElement('button');
+    tab.type = 'button';
+    tab.className = `faction-tab ${state.activeNavFactionId === faction.id ? 'active' : ''}`;
+    tab.textContent = faction.name;
+    
+    // Set custom accent indicators if active
+    if (state.activeNavFactionId === faction.id) {
+      tab.style.color = faction.color;
+      tab.style.borderColor = `${faction.color}44`;
+    }
+
+    tab.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (state.activeNavFactionId === faction.id) {
+        state.activeNavFactionId = null;
+        // If clearDetails() resets things, pass campaign data to avoid blank loops
+        clearDetails(data); 
+      } else {
+        state.activeNavFactionId = faction.id;
+        selectEntity('faction', faction.id, faction.name);
+      }
+      renderCampaignNavigationBar(data);
+      applyMapVisualFilters(state.selectedEntity?.type, state.selectedEntity?.id);
+    });
+    
+    tabsContainer.appendChild(tab);
+  });
+
+  // Manage highlight fade states inside the separate link container row
+  if (state.activeNavFactionId) {
+    linksContainer.classList.add('nav-faded-state');
+  } else {
+    linksContainer.classList.remove('nav-faded-state');
+  }
+
+  // Render Players directly inside the bottom line tray
+  (data.players || []).forEach(player => {
+    const faction = factionById(data, player.factionId);
+    const isMatchingFaction = player.factionId === state.activeNavFactionId;
+    
+    const pBtn = document.createElement('button');
+    pBtn.type = 'button';
+    pBtn.className = `player-nav-btn ${isMatchingFaction ? 'nav-highlight-btn' : ''}`;
+    pBtn.textContent = player.name;
+
+    if (faction && (!state.activeNavFactionId || isMatchingFaction)) {
+      pBtn.style.borderColor = `${faction.color}55`;
+    }
+
+    pBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      selectEntity('player', player.id, player.name);
+    });
+
+    linksContainer.appendChild(pBtn);
+  });
+}

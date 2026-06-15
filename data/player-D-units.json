@@ -1,0 +1,12 @@
+{
+  "units": [
+    {
+      "id": "unit-4001",
+      "name": "Herald Xor",
+      "role": "Character",
+      "play": 16,
+      "survive": 0,
+      "kill": 0
+    }
+  ]
+}

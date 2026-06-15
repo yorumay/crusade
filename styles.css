@@ -392,3 +392,139 @@ strong { font-size: 1.05rem; }
   border-color: rgba(255,255,255,0.24);
   outline: none;
 }
+
+hr {
+  border: 0;
+}
+
+/* --- Shared Floating HUD Theme (Matches Zoom Controls Exactly) --- */
+.navigation-overlay-style {
+  position: absolute;
+  left: 16px;
+  z-index: 10;
+  background: var(--panel); 
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+/* Position Factions Row slightly higher up */
+.faction-tabs-container {
+  bottom: 60px; 
+  width: max-content; /* Dictates that element only takes space it explicitly needs */
+}
+
+/* Position Players Row snug right along the bottom edge */
+.player-links-container {
+  bottom: 16px;
+  max-width: calc(100% - 32px); /* Prevents running off-screen on narrow viewports */
+  overflow-x: auto; /* Adds clean horizontal tracking if your player list grows */
+  white-space: nowrap; /* Forces all player buttons to stay strictly on a single line */
+  
+  /* Hides scrollbars for a cleaner visual profile */
+  scrollbar-width: none; 
+}
+.player-links-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* --- Clean, Frameless Faction Buttons --- */
+.faction-tab {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--muted);
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.15s ease;
+}
+
+.faction-tab:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.faction-tab.active {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* --- Compact Player Buttons --- */
+.player-nav-btn {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: inline-block; /* Essential to respect white-space rules */
+  flex-shrink: 0; /* Prevents player names from compressing awkwardly */
+  transition: all 0.15s ease;
+}
+
+.player-nav-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* --- Map/NavBar Filtering Opacity Controls --- */
+#sector-map.map-faded-state .world-node,
+#sector-map.map-faded-state .link {
+  opacity: 0.15;
+  filter: grayscale(80%) blur(0.5px);
+}
+
+#sector-map.map-faded-state .world-node.map-highlight-node {
+  opacity: 1;
+  filter: grayscale(0%) drop-shadow(0 0 8px currentColor);
+}
+
+#sector-map.map-faded-state .link.map-highlight-link {
+  opacity: 0.75;
+}
+
+.player-links-container.nav-faded-state .player-nav-btn {
+  opacity: 0.25;
+}
+
+.player-links-container.nav-faded-state .player-nav-btn.nav-highlight-btn {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* --- Map & Element Fading Filters --- */
+/* Set up smooth fading transitions on the SVG elements */
+#sector-map .world-node, 
+#sector-map .link {
+  transition: opacity 0.25s ease, filter 0.25s ease;
+}
+
+/* When a filter is engaged, dim down everything inside the SVG map */
+#sector-map.map-faded-state .world-node,
+#sector-map.map-faded-state .link {
+  opacity: 0.15;
+  filter: grayscale(80%) blur(0.5px);
+}
+
+/* Forcefully pop the matching elements back to full visibility */
+#sector-map.map-faded-state .world-node.map-highlight-node {
+  opacity: 1;
+  filter: grayscale(0%) drop-shadow(0 0 8px currentColor);
+}
+
+#sector-map.map-faded-state .link.map-highlight-link {
+  opacity: 0.75;
+}

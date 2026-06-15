@@ -4,8 +4,8 @@
       "id": "event-000",
       "date": "2026-06-14",
       "planetId": "",
-      "attackerPlayerIds": ["player-001", "player-002", "player-003", "player-004", "player-005"],
-      "defenderPlayerIds": ["player-006", "player-007", "player-008", "player-009", "player-010"],
+      "attackerPlayerIds": ["player-A", "player-B", "player-C", "player-D", "player-E", "player-F", "player-G", "player-H", "player-I", "player-J"],
+      "defenderPlayerIds": [""],
       "summary": ".",
       "aftermath": ".",
       "unitChanges": [

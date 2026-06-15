@@ -1,0 +1,20 @@
+{
+  "units": [
+    {
+      "id": "unit-A001",
+      "name": "Colonel Varras",
+      "role": "Character",
+      "play": 8,
+      "survive": 5,
+      "kill": 10
+    },
+    {
+      "id": "unit-A002",
+      "name": "1st Shock Troopers",
+      "role": "Battleline",
+      "play": 8,
+      "survive": 2,
+      "kill": 2
+    }
+  ]
+}

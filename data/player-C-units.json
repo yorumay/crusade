@@ -1,0 +1,12 @@
+{
+  "units": [
+    {
+      "id": "unit-3001",
+      "name": "Boss Krusha",
+      "role": "Character",
+      "play": 16,
+      "survive": 0,
+      "kill": 0
+    }
+  ]
+}

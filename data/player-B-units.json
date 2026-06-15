@@ -1,0 +1,12 @@
+{
+  "units": [
+    {
+      "id": "unit-2001",
+      "name": "Captain Aurelian",
+      "role": "Character",
+      "play": 16,
+      "survive": 0,
+      "kill": 0
+    }
+  ]
+}
