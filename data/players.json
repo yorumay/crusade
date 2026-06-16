@@ -9,7 +9,7 @@
         "id": "army-A",
         "name": "Imperial Knights",
         "factionKeyword": "Imperial Knights",
-        "crusadePoints": 0,
+        "crusadePoints": 5,
         "supplyLimit": 1000
       },
       "unitsFile": "player-A-units.json"
@@ -23,7 +23,7 @@
         "id": "army-B",
         "name": "Adeptus Astartes",
         "factionKeyword": "Adeptus Astartes",
-        "crusadePoints": 0,
+        "crusadePoints": 5,
         "supplyLimit": 1000
       },
       "unitsFile": "player-B-units.json"
@@ -37,7 +37,7 @@
         "id": "army-C",
         "name": "Necrons",
         "factionKeyword": "Necrons",
-        "crusadePoints": 0,
+        "crusadePoints": 5,
         "supplyLimit": 1000
       },
       "unitsFile": "player-C-units.json"
@@ -51,7 +51,7 @@
         "id": "army-D",
         "name": "World Eaters",
         "factionKeyword": "World Eaters",
-        "crusadePoints": 0,
+        "crusadePoints": 5,
         "supplyLimit": 1000
       },
       "unitsFile": "player-D-units.json"
@@ -60,12 +60,12 @@
       "id": "player-E",
       "name": "Jorma",
       "factionId": "despoilers",
-      "notes": "",
+      "notes": "Combined force of Chaos Knights and Daemons, led by Baron Vargha, and championed by the Daemonic Herald of Blood, Kor'vax the Unbound. ",
       "army": {
         "id": "army-E",
-        "name": "House Ærthegh",
+        "name": "Ormskjaftr",
         "factionKeyword": "Chaos Knights & Daemons",
-        "crusadePoints": 0,
+        "crusadePoints": 5,
         "supplyLimit": 1000
       },
       "unitsFile": "player-E-units.json"
@@ -79,7 +79,7 @@
         "id": "army-F",
         "name": "Adeptus Custodes",
         "factionKeyword": "Adeptus Custodes",
-        "crusadePoints": 0,
+        "crusadePoints": 5,
         "supplyLimit": 1000
       },
       "unitsFile": "player-F-units.json"
@@ -93,7 +93,7 @@
         "id": "army-G",
         "name": "Emperor's Children",
         "factionKeyword": "Emperor's Children",
-        "crusadePoints": 0,
+        "crusadePoints": 5,
         "supplyLimit": 1000
       },
       "unitsFile": "player-G-units.json"
@@ -107,7 +107,7 @@
         "id": "army-H",
         "name": "Adepta Sororitas",
         "factionKeyword": "Adepta Sororitas",
-        "crusadePoints": 0,
+        "crusadePoints": 5,
         "supplyLimit": 1000
       },
       "unitsFile": "player-H-units.json"
@@ -121,7 +121,7 @@
         "id": "army-I",
         "name": "Adeptus Mechanicus",
         "factionKeyword": "Adeptus Mechanicus",
-        "crusadePoints": 0,
+        "crusadePoints": 5,
         "supplyLimit": 1000
       },
       "unitsFile": "player-I-units.json"
@@ -135,7 +135,7 @@
         "id": "army-J",
         "name": "Adeptus Astartes",
         "factionKeyword": "Adeptus Astartes",
-        "crusadePoints": 0,
+        "crusadePoints": 5,
         "supplyLimit": 1000
       },
       "unitsFile": "player-J-units.json"

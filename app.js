@@ -1,8 +1,9 @@
+// Change state history tracker from an array to a simple parent pointer string
 const state = {
   data: null,
   selectedEntity: null,
-  history: [],
-  activeNavFactionId: null // Tracks active bottom navigation tab
+  history: [], // Keep for background map compatibility if needed, but we will bypass for details nav
+  activeNavFactionId: null 
 };
 
 const el = (id) => document.getElementById(id);
@@ -81,13 +82,7 @@ function formatUnitCount(count) {
 }
 
 function renderBreadcrumbs(container) {
-  if (!state.history.length) return;
-
-  const label = state.history[state.history.length - 1];
-  const crumb = make('div', { className: 'breadcrumbs' }, [
-    make('span', { textContent: `${label.type.charAt(0).toUpperCase() + label.type.slice(1)}: ${label.label}` }),
-  ]);
-  container.appendChild(crumb);
+  // Removed per request to clear the layout clutter
 }
 
 function formatImperialDate(dateString) {
@@ -99,11 +94,15 @@ function formatImperialDate(dateString) {
       const year = date.getUTCFullYear();
       const startOfYear = Date.UTC(year, 0, 1);
       const dayOfYear = Math.floor((date.getTime() - startOfYear) / 86400000) + 1;
+      
+      // Calculate the year fraction (000-999)
       const segment = Math.max(1, Math.min(1000, Math.round((dayOfYear / 365) * 1000)));
       const imperialYear = year + 40000;
       const millennium = Math.floor(imperialYear / 1000);
       const yearOfMillennium = imperialYear % 1000;
-      return `${String(segment).padStart(3, '0')}${String(yearOfMillennium).padStart(3, '0').M}${millennium}`;
+      
+      
+      return `${String(segment).padStart(3, '0')}${String(yearOfMillennium).padStart(3, '0')}.M${millennium}`;
     }
   }
 
@@ -111,7 +110,8 @@ function formatImperialDate(dateString) {
   if (!Number.isNaN(numeric) && String(numeric).length === 4) {
     const year = numeric + 40000;
     const millennium = Math.floor(year / 1000);
-    return `${year} (M${millennium})`;
+    const yearOfMillennium = year % 1000;
+    return `${String(yearOfMillennium).padStart(3, '0')} M${millennium}`;
   }
 
   const parsed = Date.parse(dateString);
@@ -119,7 +119,8 @@ function formatImperialDate(dateString) {
     const year = new Date(parsed).getUTCFullYear();
     const imperial = year + 40000;
     const millennium = Math.floor(imperial / 1000);
-    return `${imperial} (M${millennium})`;
+    const yearOfMillennium = imperial % 1000;
+    return `${String(yearOfMillennium).padStart(3, '0')} M${millennium}`;
   }
 
   return dateString;
@@ -142,7 +143,7 @@ function findSpacelane(data, spacelaneId) {
 function timelineLocationLabel(data, report) {
   if (report.planetId) {
     const planet = byId(data.planets, report.planetId);
-    return planet ? planet.name : `planet ${report.planetId}`;
+    return planet ? planet.name : `${report.planetId}`;
   }
   if (report.spacelaneId) {
     const lane = findSpacelane(data, report.spacelaneId);
@@ -325,23 +326,41 @@ function clearDetails(data) {
 }
 
 function selectEntity(type, id, label, preserveHistory = false) {
-  if (!preserveHistory && state.selectedEntity && (state.selectedEntity.type !== type || state.selectedEntity.id !== id)) {
-    const currentLabel = state.selectedEntity.label || `${state.selectedEntity.type}:${state.selectedEntity.id}`;
-    state.history.push({ ...state.selectedEntity, label: currentLabel });
-  }
-
   state.selectedEntity = { type, id, label };
-  
   applyMapVisualFilters(type, id);
-  
   renderDetails(state.data);
 }
 
 function goBack() {
-  if (!state.history.length) return;
-  const previous = state.history.pop();
-  state.selectedEntity = { type: previous.type, id: previous.id };
-  renderDetails(state.data);
+  if (!state.selectedEntity) return;
+
+  const { type, id } = state.selectedEntity;
+  const data = state.data;
+
+  // Hierarchical single-level back routing: Unit -> Player -> Faction -> Close
+  if (type === 'unit') {
+    let parentPlayer = null;
+    data.players.forEach((p) => {
+      if ((p.units || []).some(u => u.id === id)) parentPlayer = p;
+    });
+    if (parentPlayer) {
+      selectEntity('player', parentPlayer.id, parentPlayer.name);
+      return;
+    }
+  } else if (type === 'player') {
+    const player = playerById(data, id);
+    const faction = player ? factionById(data, player.factionId) : null;
+    if (faction) {
+      selectEntity('faction', faction.id, faction.name);
+      return;
+    }
+  } else if (type === 'faction') {
+    clearDetails(data);
+    return;
+  }
+  
+  // Default fallback for items outside the chain
+  clearDetails(data);
 }
 
 function renderDetails(data) {
@@ -355,19 +374,22 @@ function renderDetails(data) {
   content.classList.remove('hidden');
   content.innerHTML = '';
 
-  const previous = state.history[state.history.length - 1];
-  const buttonText = previous ? `← Back to ${previous.type.charAt(0).toUpperCase() + previous.type.slice(1)}` : '← Back to timeline';
-  const timelineButton = make('button', {
-    type: 'button',
-    className: 'breadcrumb-back',
-    textContent: buttonText,
-  });
-  timelineButton.addEventListener('click', previous ? goBack : () => clearDetails(data));
-  content.appendChild(timelineButton);
-
-  renderBreadcrumbs(content);
-
   const { type, id } = state.selectedEntity;
+
+  // --- Strict Single-Level Back Navigation Button ---
+  // Only render a back action if the entity belongs strictly to our target hierarchy chain
+  if (type === 'faction' || type === 'player' || type === 'unit') {
+    let backLabel = '← Back';
+
+    const backButton = make('button', {
+      type: 'button',
+      className: 'breadcrumb-back',
+      textContent: backLabel,
+    });
+    backButton.addEventListener('click', goBack);
+    content.appendChild(backButton);
+  }
+
   if (type === 'planet') {
     renderPlanetDetails(data, id, content);
     return;
@@ -509,39 +531,77 @@ function renderFactionDetails(data, factionId, container) {
   const faction = factionById(data, factionId);
   if (!faction) return clearDetails();
 
-  const worlds = data.planets.filter((planet) => determinePlanetStatus(data, planet).factionId === factionId).length;
   const players = data.players.filter((player) => player.factionId === factionId);
-  const totalUnits = players.reduce((sum, player) => sum + (player.units?.length || 0), 0);
 
-  container.appendChild(make('div', { className: 'panel-heading' }, [
-    make('div', {}, [
-      make('h2', { textContent: faction.name }),
-      make('p', { className: 'muted', textContent: faction.description }),
-    ]),
-    make('span', { className: 'pill', style: `border-color: ${faction.color}55; color: ${faction.color};`, textContent: 'Faction' }),
-  ]));
-
-  const stats = make('div', { className: 'detail-grid' }, [
-    make('div', {}, [make('span', { className: 'stat-label', textContent: 'Controlled Worlds' }), make('strong', { textContent: worlds })]),
-    make('div', {}, [make('span', { className: 'stat-label', textContent: 'Players' }), make('strong', { textContent: players.length })]),
-    make('div', {}, [make('span', { className: 'stat-label', textContent: 'Units' }), make('strong', { textContent: totalUnits })]),
+  // --- Row 1: Centered 80% Width Faction "Cover Art" Banner Box ---
+  const coverArtWrapper = make('div', {
+    style: `
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 80%;
+      margin: 0 auto 20px auto;
+      padding: 24px;
+      background: var(--panel-strong);
+      border: 1px solid ${faction.color}33;
+      border-radius: 12px;
+      box-shadow: inset 0 0 20px ${faction.color}11, 0 10px 30px rgba(0,0,0,0.2);
+    `
+  }, [
+    make('img', { 
+      src: `./icons/factions/${faction.id}.svg`, 
+      alt: `${faction.name} Crest`,
+      style: `
+        object-fit: contain;
+        filter: drop-shadow(0 0 12px ${faction.color}66);
+      `,
+      onerror: "this.style.display='none';" 
+    })
   ]);
-  container.appendChild(stats);
+  container.appendChild(coverArtWrapper);
 
-  container.appendChild(make('h3', { textContent: 'Players' }));
+  // --- Row 2: Centered Faction Heading ---
+  const headerContainer = make('div', { 
+    className: 'panel-heading', 
+    style: 'display: block; text-align: center; margin-bottom: 24px;' 
+  }, [
+    make('h2', { 
+      textContent: faction.name, 
+      style: `color: ${faction.color}; margin: 0; line-height: 1.2; font-weight: 700; letter-spacing: 0.03em;` 
+    })
+  ]);
+  container.appendChild(headerContainer);
+
+  // --- Row 3: Faction Strategic Note/Manifesto Box ---
+  const manifestoBox = make('div', { className: 'card', style: `margin-bottom: 24px; border-color: ${faction.color}33;` }, [
+    make('span', { className: 'stat-label', style: 'margin-bottom: 6px;', textContent: 'Strategic Objectives' }),
+    make('p', { 
+      style: 'margin: 0; font-size: 0.95rem;', 
+      textContent: faction.description || 'No campaign directives issued yet.' 
+    })
+  ]);
+  container.appendChild(manifestoBox);
+
+  // --- Row 4: Command Roster (Players & Army Faction Keywords) ---
+  container.appendChild(make('h3', { textContent: 'Command Roster' }));
   if (!players.length) {
-    container.appendChild(make('p', { className: 'muted', textContent: 'No commanders have joined this faction yet.' }));
+    container.appendChild(make('p', { className: 'muted', textContent: 'No commanders have joined this alliance yet.' }));
   } else {
     players.forEach((player) => {
-      const button = createEntityButton(player.name, 'player', player.id);
-      const count = player.units?.length || 0;
-      button.appendChild(make('div', { className: 'muted', textContent: formatUnitCount(count) }));
+      const armyKeyword = player.army ? player.army.factionKeyword : 'Unassigned Order of Battle';
+      const buttonLabel = `${player.name} | ${armyKeyword}`;
+      
+      const button = createEntityButton(buttonLabel, 'player', player.id);
+      
+      button.querySelectorAll('.muted').forEach(el => el.remove());
+      
       container.appendChild(button);
     });
   }
 
   container.appendChild(make('hr'));
 
+  // --- Row 5: Related Timeline ---
   renderRelatedTimeline(container, 'Related Timeline', timelineEntriesForFaction(data, faction.id), data);
 }
 
@@ -552,33 +612,92 @@ function renderPlayerDetails(data, playerId, container) {
   const faction = factionById(data, player.factionId);
   const army = player.army;
   const playerUnits = player.units || []; 
+  
+  // Use faction color if available, fallback to a neutral tint if not assigned
+  const themeColor = faction ? faction.color : '#ffffff';
 
-  container.appendChild(make('div', { className: 'panel-heading' }, [
+  // --- Row 1: Centered 80% Width Player Army "Cover Art" Banner Box ---
+  const coverArtWrapper = make('div', {
+    style: `
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 80%;
+      margin: 0 auto 20px auto;
+      padding: 24px;
+      background: var(--panel-strong);
+      border: 1px solid ${themeColor}33;
+      border-radius: 12px;
+      box-shadow: inset 0 0 20px ${themeColor}11, 0 10px 30px rgba(0,0,0,0.2);
+    `
+  }, [
+    make('img', { 
+      src: army ? `./icons/armies/${army.id}.svg` : `./icons/factions/neutral.svg`, 
+      alt: army ? `${army.name} Heraldry` : 'Unassigned Heraldry',
+      style: `
+        object-fit: contain;
+        filter: drop-shadow(0 0 12px ${themeColor}66);
+      `,
+      onerror: "this.style.display='none';" 
+    })
+  ]);
+  container.appendChild(coverArtWrapper);
+
+  // --- Row 2: Player Name & Army Name (2-Column Grid Configuration) ---
+  const identityGrid = make('div', { className: 'detail-grid', style: 'grid-template-columns: repeat(2, 1fr); margin-bottom: 10px;' }, [
     make('div', {}, [
-      make('h2', { textContent: player.name }),
-      make('p', { className: 'muted', textContent: player.notes || 'No notes yet.' }),
+      make('span', { className: 'stat-label', textContent: 'Commander' }), 
+      make('strong', { textContent: player.name })
     ]),
-    make('span', { className: 'pill', style: `border-color: ${faction?.color ?? '#fff'}55; color: ${faction?.color ?? '#fff'};`, textContent: faction?.name ?? 'Player' }),
-  ]));
+    make('div', {}, [
+      make('span', { className: 'stat-label', textContent: 'Army Name' }), 
+      make('strong', { textContent: army ? army.name : 'Unassigned' })
+    ])
+  ]);
+  container.appendChild(identityGrid);
 
-  container.appendChild(make('h3', { textContent: 'Faction' }));
-  if (faction) {
-    container.appendChild(createEntityButton(faction.name, 'faction', faction.id));
-  }
+  // --- Row 3: Faction Keyword & Grand Faction (2-Column Grid Configuration) ---
+  const factionGrid = make('div', { className: 'detail-grid', style: 'grid-template-columns: repeat(2, 1fr); margin-top: 0; margin-bottom: 14px;' }, [
+    make('div', {}, [
+      make('span', { className: 'stat-label', textContent: 'Faction Keyword' }), 
+      make('strong', { textContent: army ? army.factionKeyword : 'N/A' })
+    ]),
+    make('div', { style: faction ? `border-color: ${faction.color}44;` : '' }, [
+      make('span', { className: 'stat-label', textContent: 'Campaign Alliance' }), 
+      make('strong', { 
+        textContent: faction ? faction.name : 'Unknown Alliance',
+        style: faction ? `color: ${faction.color};` : ''
+      })
+    ])
+  ]);
+  container.appendChild(factionGrid);
 
+  // --- Row 4: Commander's Notes / Logistics Record (Full-Width Card Box) ---
+  const notesBox = make('div', { className: 'card', style: 'margin-bottom: 24px;' }, [
+    make('span', { className: 'stat-label', style: 'margin-bottom: 6px;', textContent: 'Notes' }),
+    make('p', { 
+      className: player.notes ? '' : 'muted', 
+      style: `margin: 0; font-style: ${player.notes ? 'normal' : 'italic'}; font-size: 0.95rem;`,
+      textContent: player.notes || 'No active strategic notes recorded for this commander.' 
+    })
+  ]);
+  container.appendChild(notesBox);
+
+  // --- Row 5: Army Crusade Statistics (The 3-Box Stats Row) ---
   if (army) {
-    container.appendChild(make('h3', { textContent: 'Army' }));
-    container.appendChild(make('div', { className: 'card' }, [
-      make('h3', { textContent: army.name }),
-      make('p', { className: 'muted', textContent: army.factionKeyword }),
-      make('p', { html: `<span class="stat-label">Crusade Points</span><strong>${army.crusadePoints}</strong>` }),
-      make('p', { html: `<span class="stat-label">Supply Limit</span><strong>${army.supplyLimit}</strong>` }),
-      make('p', { html: `<span class="stat-label">Units</span><strong>${playerUnits.length}</strong>` }), 
-    ]));
+    container.appendChild(make('h3', { textContent: 'Crusade Mechanics' }));
+    
+    const stats = make('div', { className: 'detail-grid' }, [
+      make('div', {}, [make('span', { className: 'stat-label', textContent: 'Crusade Points' }), make('strong', { textContent: army.crusadePoints })]),
+      make('div', {}, [make('span', { className: 'stat-label', textContent: 'Supply Limit' }), make('strong', { textContent: army.supplyLimit })]),
+      make('div', {}, [make('span', { className: 'stat-label', textContent: 'Total Units' }), make('strong', { textContent: playerUnits.length })])
+    ]);
+    container.appendChild(stats);
 
     container.appendChild(make('hr'));
 
-    container.appendChild(make('h3', { textContent: 'Units' }));
+    // --- Row 6: Order of Battle (Units List) ---
+    container.appendChild(make('h3', { textContent: 'Order of Battle' }));
     if (!playerUnits.length) { 
       container.appendChild(make('p', { className: 'muted', textContent: 'No units are currently listed for this army.' }));
     } else {
@@ -608,20 +727,116 @@ function renderUnitDetails(data, unitId, container) {
   });
   if (!found) return clearDetails();
 
-  container.appendChild(make('div', { className: 'panel-heading' }, [
-    make('div', {}, [
-      make('h2', { textContent: found.name }),
-      make('p', { className: 'muted', textContent: found.role }),
-    ]),
-    make('span', { className: 'pill', textContent: 'Unit' }),
-  ]));
+  const faction = player ? factionById(data, player.factionId) : null;
+  const themeColor = faction ? faction.color : '#ffffff';
 
-  const stats = make('div', { className: 'detail-grid' }, [
-    make('div', {}, [make('span', { className: 'stat-label', textContent: 'Battles Played' }), make('strong', { textContent: found.play})]),
-    make('div', {}, [make('span', { className: 'stat-label', textContent: 'Battles Survived' }), make('strong', { textContent: found.survive})]),
-    make('div', {}, [make('span', { className: 'stat-label', textContent: 'Enemy Units Destroyed' }), make('strong', { textContent: found.kill})])
+  // --- Row 1: Full Width Unit Name Header Box ---
+  const nameBox = make('div', {
+    className: 'card',
+    style: `margin-bottom: 10px; background: var(--panel-strong); border-color: ${themeColor}33; text-align: center; padding: 18px;`
+  }, [
+    make('h2', { textContent: found.name, style: 'margin: 0; font-size: 1.6rem; letter-spacing: 0.02em;' })
   ]);
-  container.appendChild(stats);
+  container.appendChild(nameBox);
+
+  // --- Row 2: Full Width Repurposed Datasheet Role Box ---
+  const datasheetBox = make('div', {
+    className: 'card',
+    style: 'margin-bottom: 20px; text-align: center; padding: 10px; background: rgba(255,255,255,0.02);'
+  }, [
+    make('span', { className: 'stat-label', style: 'margin-bottom: 2px;', textContent: 'Core Datasheet' }),
+    make('strong', { textContent: found.role || 'Unspecified Datasheet', style: 'font-size: 1.05rem; color: var(--text);' })
+  ]);
+  container.appendChild(datasheetBox);
+
+  // --- Calculate Experience Rank & Flair ---
+  const xpValue = found.xp || 0;
+  let rankLabel = 'Battle-Ready';
+  let rankColor = 'rgba(255,255,255,0.4)';
+  
+  if (xpValue >= 51) {
+    rankLabel = 'Legendary ❖';
+    rankColor = '#f59e0b'; // Gold
+  } else if (xpValue >= 31) {
+    rankLabel = 'Heroic ★';
+    rankColor = '#ec4899'; // Pink/Purple
+  } else if (xpValue >= 16) {
+    rankLabel = 'Battle-Hardened';
+    rankColor = '#3b82f6'; // Blue
+  } else if (xpValue >= 6) {
+    rankLabel = 'Blooded';
+    rankColor = '#10b981'; // Green
+  }
+
+  // --- Row 3: Mechanics Grid (Point Cost, Crusade Points, Experience Points) ---
+  const mechanicsGrid = make('div', { className: 'detail-grid', style: 'grid-template-columns: repeat(3, 1fr); margin-bottom: 20px;' }, [
+    make('div', {}, [
+      make('span', { className: 'stat-label', textContent: 'Point Cost' }), 
+      make('strong', { textContent: found.points || '—' })
+    ]),
+    make('div', {}, [
+      make('span', { className: 'stat-label', textContent: 'Crusade Points' }), 
+      make('strong', { textContent: found.crusadePoints !== undefined ? found.crusadePoints : '—' })
+    ]),
+    make('div', { style: `border-color: ${rankColor}55; background: ${rankColor}06;` }, [
+      make('span', { className: 'stat-label', textContent: `XP (${rankLabel})` }), 
+      make('strong', { textContent: xpValue, style: `color: ${xpValue >= 6 ? rankColor : 'var(--text)'};` })
+    ])
+  ]);
+  container.appendChild(mechanicsGrid);
+
+  // --- Row 4: Equipment & Loadout Record Box ---
+  const equipmentBox = make('div', { className: 'card', style: 'margin-bottom: 12px;' }, [
+    make('span', { className: 'stat-label', style: 'margin-bottom: 6px;', textContent: 'Wargear & Equipment' }),
+    make('p', { 
+      className: found.equipment ? '' : 'muted', 
+      style: 'margin: 0; font-size: 0.95rem;', 
+      textContent: found.equipment || 'Standard baseline package deployment.' 
+    })
+  ]);
+  container.appendChild(equipmentBox);
+
+  // --- Row 5: Enhancements and Upgrades Record Box ---
+  const upgradesBox = make('div', { className: 'card', style: 'margin-bottom: 24px;' }, [
+    make('span', { className: 'stat-label', style: 'margin-bottom: 6px;', textContent: 'Enhancements & Upgrades' }),
+    make('p', { 
+      className: found.upgrades ? '' : 'muted', 
+      style: 'margin: 0; font-size: 0.95rem;', 
+      textContent: found.upgrades || 'No active mechanical modifications.' 
+    })
+  ]);
+  container.appendChild(upgradesBox);
+
+  container.appendChild(make('h3', { textContent: 'Combat Tallies' }));
+
+  // --- Row 6: Performance Metrics (Corrected with commas) ---
+  const talliesGrid = make('div', { className: 'detail-grid', style: 'margin-bottom: 24px;' }, [
+    make('div', {}, [make('span', { className: 'stat-label', textContent: 'Battles Played' }), make('strong', { textContent: found.play || 0 })]),
+    make('div', {}, [make('span', { className: 'stat-label', textContent: 'Battles Survived' }), make('strong', { textContent: found.survive || 0 })]),
+    make('div', {}, [make('span', { className: 'stat-label', textContent: 'Enemy Units Destroyed' }), make('strong', { textContent: found.kill || 0 })])
+  ]);
+  container.appendChild(talliesGrid);
+
+  // --- Row 7: Battle Honours & Battle Scars Split Grid ---
+  const traitsGrid = make('div', { className: 'detail-grid', style: 'grid-template-columns: repeat(2, 1fr); gap: 12px; border: none; padding: 0; background: transparent; box-shadow: none;' }, [
+    make('div', { style: 'border: 1px solid rgba(16, 185, 129, 0.2); background: rgba(16, 185, 129, 0.02);' }, [
+      make('span', { className: 'stat-label', style: 'color: #10b981; margin-bottom: 4px;', textContent: 'Battle Honours' }),
+      make('div', { 
+        className: found.honours ? '' : 'muted', 
+        style: 'font-size: 0.9rem; font-weight: 500; text-align: left; line-height: 1.4;',
+        textContent: found.honours || 'None earned yet.'
+      })
+    ]),
+    make('div', { style: 'border: 1px solid rgba(239, 68, 68, 0.2); background: rgba(239, 68, 68, 0.02);' }, [
+      make('span', { className: 'stat-label', style: 'color: #ef4444; margin-bottom: 4px;', textContent: 'Battle Scars' }),
+      make('div', { 
+        className: found.scars ? '' : 'muted', 
+        style: 'font-size: 0.9rem; font-weight: 500; text-align: left; line-height: 1.4;',
+        textContent: found.scars || 'Clean status record.'
+      })
+    ])
+  ]);
+  container.appendChild(traitsGrid);
 }
 
 function renderMap(data) {
@@ -745,33 +960,73 @@ function renderMap(data) {
     icon.setAttribute('pointer-events', 'none');
     icon.style.pointerEvents = 'none';
 
-    const occupants = (planet.occupyingPlayers || []).map((playerId) => playerById(data, playerId)).filter(Boolean);
+const occupants = (planet.occupyingPlayers || []).map((playerId) => playerById(data, playerId)).filter(Boolean);
     const dotsGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
     dotsGroup.setAttribute('class', 'world-player-dots');
     dotsGroup.setAttribute('pointer-events', 'none');
+    
     const playerIconSize = 32; // 2x size enhancement scale from original 16
-    const dotGap = playerIconSize + 6;
-    const dotY = planet.y - 64; // Raised offset coordinates from -32 to float cleanly over larger world profiles
-    const startX = planet.x - ((occupants.length - 1) * dotGap) / 2;
+    const dotGapX = playerIconSize + 6;
+    const dotGapY = playerIconSize + 4; // Vertical spacing between rows
+    const baseDotY = planet.y - 64;    // The original baseline height for row 1
+
+    // Determine layout configuration based on player count
+    const maxIconsPerRow = 5;
+    const totalOccupants = occupants.length;
+    
     occupants.forEach((player, index) => {
+      let rowIndex = 0;
+      let colIndex = index;
+      let iconsInThisRow = totalOccupants;
+
+      // If we exceed 5 players, split into two rows
+      if (totalOccupants > maxIconsPerRow) {
+        // Row 0 gets the first 5, Row 1 gets the remainder
+        if (index < maxIconsPerRow) {
+          rowIndex = 0;
+          colIndex = index;
+          iconsInThisRow = maxIconsPerRow;
+        } else {
+          rowIndex = 1;
+          colIndex = index - maxIconsPerRow;
+          iconsInThisRow = totalOccupants - maxIconsPerRow;
+        }
+      }
+
+      // Calculate centering offset specifically for this row's icon count
+      const rowStartX = planet.x - ((iconsInThisRow - 1) * dotGapX) / 2;
+      const currentX = rowStartX + colIndex * dotGapX;
+      
+      // Row 0 stacks upward (baseDotY - dotGapY), Row 1 sits at baseline (baseDotY)
+      // This ensures that if a second row is added, it doesn't clip downward into the planet icon
+      const currentY = rowIndex === 0 && totalOccupants > maxIconsPerRow
+        ? baseDotY - dotGapY 
+        : baseDotY;
+
       const playerIcon = document.createElementNS("http://www.w3.org/2000/svg", "image");
       const playerIconSrc = player.army?.icon || `./icons/players/${player.id}.svg`;
       playerIcon.setAttribute('href', playerIconSrc);
       playerIcon.setAttributeNS('http://www.w3.org/1999/xlink', 'href', playerIconSrc);
-      playerIcon.setAttribute('x', startX + index * dotGap - playerIconSize / 2);
-      playerIcon.setAttribute('y', dotY - playerIconSize / 2);
+      
+      // Position using our multi-row grid math
+      playerIcon.setAttribute('x', currentX - playerIconSize / 2);
+      playerIcon.setAttribute('y', currentY - playerIconSize / 2);
+      
       playerIcon.setAttribute('width', playerIconSize);
       playerIcon.setAttribute('height', playerIconSize);
       playerIcon.setAttribute('class', 'world-player-icon');
       playerIcon.setAttribute('pointer-events', 'all');
       playerIcon.style.pointerEvents = 'all';
+      
       playerIcon.addEventListener('click', (ev) => {
         ev.stopPropagation();
         selectEntity('player', player.id, player.name);
       });
+      
       playerIcon.setAttribute('opacity', '0.95');
       dotsGroup.appendChild(playerIcon);
     });
+
 
     const hit = document.createElementNS("http://www.w3.org/2000/svg", "circle");
     hit.setAttribute("cx", planet.x);

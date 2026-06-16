@@ -13,14 +13,17 @@
       "type": "Cemetery World",
       "x": 400,
       "y": 950, 
-      "strategicValue": 0,
       "controlSteps": {
-        "protectors": 6,
-        "invaders": 3,
-        "despoilers": 1
+        "protectors": 1,
+        "invaders": 0,
+        "despoilers": 0
       },
       "description": "Lorem ipsom.",
       "occupyingPlayers": [
+        "player-A",
+        "player-C",
+        "player-I",
+        "player-J"
       ],
       "lore": "Lorem Ipsum",
       "history": [
@@ -32,9 +35,16 @@
       "type": "Death World",
       "x": 800,
       "y": 800,
-      "strategicValue": 2,
+      "controlSteps": {
+        "protectors": 0,
+        "invaders": 1,
+        "despoilers": 0
+      },
       "description": "A jungle world where the canopy swallows entire armies.",
       "occupyingPlayers": [
+        "player-B",
+        "player-F",
+        "player-H"
       ],
       "lore": "No map drawn here survives a single campaign season.",
       "history": [
@@ -50,11 +60,17 @@
       "type": "Forge World",
       "x": 450,
       "y": 450,
-      "strategicValue": 4,
+      "controlSteps": {
+        "protectors": 1,
+        "invaders": 0,
+        "despoilers": 0
+      },
       "description": "Ancient manufactoria and orbital docks dominate this world.",
       "occupyingPlayers": [
-                "player-A"
-
+        "player-A",
+        "player-C",
+        "player-I",
+        "player-J"
       ],
       "lore": "Its machine-spirits are said to remember the first crusade fleets.",
       "history": []
@@ -65,10 +81,16 @@
       "type": "Agri World",
       "x": 1000,
       "y": 300,
-      "strategicValue": 1,
+      "controlSteps": {
+        "protectors": 0,
+        "invaders": 0,
+        "despoilers": 1
+      },
       "description": "A fertile supply world feeding nearby garrisons.",
       "occupyingPlayers": [
-        "player-B"
+        "player-D",
+        "player-E",
+        "player-G"
       ],
       "lore": "Fields of grain stretch as far as the eye can see between shrine towers.",
       "history": []
@@ -79,10 +101,16 @@
       "type": "Civilized World",
       "x": 1200,
       "y": 1100,
-      "strategicValue": 1,
+      "controlSteps": {
+        "protectors": 0,
+        "invaders": 1,
+        "despoilers": 0
+      },
       "description": "A fertile supply world feeding nearby garrisons.",
       "occupyingPlayers": [
-        "player-C"
+        "player-B",
+        "player-F",
+        "player-H"
       ],
       "lore": "Fields of grain stretch as far as the eye can see between shrine towers.",
       "history": []
@@ -93,10 +121,16 @@
       "type": "Dead World",
       "x": 1500,
       "y": 600,
-      "strategicValue": 1,
+      "controlSteps": {
+        "protectors": 0,
+        "invaders": 0,
+        "despoilers": 1
+      },
       "description": "A fertile supply world feeding nearby garrisons.",
       "occupyingPlayers": [
-        "player-D"
+        "player-D",
+        "player-E",
+        "player-G"
       ],
       "lore": "Fields of grain stretch as far as the eye can see between shrine towers.",
       "history": []
@@ -104,8 +138,7 @@
   ],
   "spacelanes": [
     {
-      "from": "planet-001",
-      "to": "planet-002"
+      
     }
   ]
 }

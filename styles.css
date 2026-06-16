@@ -360,23 +360,28 @@ strong { font-size: 1.05rem; }
   padding-bottom: 6px;
   border-bottom: 1px solid rgba(255,255,255,0.08);
 }
-
+/* Remove or replace the old .breadcrumbs rules with this clean layout block */
 .breadcrumb-back,
 .details-panel > #details-content > .breadcrumb-back {
   border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 999px;
+  border-radius: 6px; /* Squaring it off slightly for a modern slate aesthetic */
   background: rgba(255,255,255,0.05);
   color: inherit;
-  padding: 10px 14px;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   cursor: pointer;
   transition: background 120ms ease, border-color 120ms ease;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+  display: inline-block;
 }
 
 .breadcrumb-back:hover,
 .breadcrumb-back:focus-visible {
-  background: rgba(255,255,255,0.1);
-  border-color: rgba(255,255,255,0.24);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.24);
   outline: none;
 }
 
@@ -562,3 +567,20 @@ hr {
 .control-pip.filled {
   box-shadow: 0 0 5px var(--pip-glow);
 }
+
+.faction-symbol-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 64px;
+}
+
+.detail-grid > div > div.muted {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.detail-grid > div > div {
+  width: 100%;
+}
+

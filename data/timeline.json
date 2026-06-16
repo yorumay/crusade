@@ -2,14 +2,14 @@
   "timeline": [
     {
       "id": "event-000",
-      "date": "2026-06-14",
-      "planetId": "",
-      "attackerPlayerIds": ["player-A", "player-B", "player-C", "player-D", "player-E", "player-F", "player-G", "player-H", "player-I", "player-J"],
-      "defenderPlayerIds": [""],
-      "summary": ".",
-      "aftermath": ".",
+      "date": "2026-07-29",
+      "planetId": "Sector XXX26Y",
+      "attackerPlayerIds": ["All"],
+      
+      "summary": "The Crusade Campaign Begins",
+      "aftermath": "",
       "unitChanges": [
-        "."
+        
       ]
     }
   ]
