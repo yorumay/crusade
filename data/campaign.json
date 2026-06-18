@@ -8,43 +8,40 @@
   },
   "planets": [
     {
-      "id": "planet-001",
+      "id": "planet-01",
       "name": "Planet 01",
       "type": "Cemetery World",
-      "x": 400,
-      "y": 950, 
+      "x": 882,
+      "y": 345, 
       "controlSteps": {
-        "protectors": 1,
+        "protectors": 0,
         "invaders": 0,
         "despoilers": 0
       },
       "description": "Lorem ipsom.",
       "occupyingPlayers": [
         "player-A",
-        "player-C",
-        "player-I",
-        "player-J"
+        "player-B"
       ],
       "lore": "Lorem Ipsum",
       "history": [
       ]
     },
     {
-      "id": "planet-002",
+      "id": "planet-02",
       "name": "Planet 02",
       "type": "Death World",
-      "x": 800,
-      "y": 800,
+      "x": 1224,
+      "y": 594,
       "controlSteps": {
         "protectors": 0,
-        "invaders": 1,
+        "invaders": 0,
         "despoilers": 0
       },
       "description": "A jungle world where the canopy swallows entire armies.",
       "occupyingPlayers": [
-        "player-B",
-        "player-F",
-        "player-H"
+        "player-C",
+        "player-D"
       ],
       "lore": "No map drawn here survives a single campaign season.",
       "history": [
@@ -55,11 +52,11 @@
       ]
     },
     {
-      "id": "planet-003",
+      "id": "planet-03",
       "name": "Planet 03",
       "type": "Forge World",
-      "x": 450,
-      "y": 450,
+      "x": 1093,
+      "y": 996,
       "controlSteps": {
         "protectors": 1,
         "invaders": 0,
@@ -67,20 +64,18 @@
       },
       "description": "Ancient manufactoria and orbital docks dominate this world.",
       "occupyingPlayers": [
-        "player-A",
-        "player-C",
-        "player-I",
-        "player-J"
+        "player-E",
+        "player-F"
       ],
       "lore": "Its machine-spirits are said to remember the first crusade fleets.",
       "history": []
     },
     {
-      "id": "planet-004",
+      "id": "planet-04",
       "name": "Planet 04",
       "type": "Agri World",
-      "x": 1000,
-      "y": 300,
+      "x": 671,
+      "y": 996,
       "controlSteps": {
         "protectors": 0,
         "invaders": 0,
@@ -88,19 +83,18 @@
       },
       "description": "A fertile supply world feeding nearby garrisons.",
       "occupyingPlayers": [
-        "player-D",
-        "player-E",
-        "player-G"
+        "player-G",
+        "player-H"
       ],
       "lore": "Fields of grain stretch as far as the eye can see between shrine towers.",
       "history": []
     },
     {
-      "id": "planet-005",
+      "id": "planet-05",
       "name": "Planet 05",
       "type": "Civilized World",
-      "x": 1200,
-      "y": 1100,
+      "x": 540,
+      "y": 594,
       "controlSteps": {
         "protectors": 0,
         "invaders": 1,
@@ -108,29 +102,8 @@
       },
       "description": "A fertile supply world feeding nearby garrisons.",
       "occupyingPlayers": [
-        "player-B",
-        "player-F",
-        "player-H"
-      ],
-      "lore": "Fields of grain stretch as far as the eye can see between shrine towers.",
-      "history": []
-    },
-    {
-      "id": "planet-006",
-      "name": "Planet 06",
-      "type": "Dead World",
-      "x": 1500,
-      "y": 600,
-      "controlSteps": {
-        "protectors": 0,
-        "invaders": 0,
-        "despoilers": 1
-      },
-      "description": "A fertile supply world feeding nearby garrisons.",
-      "occupyingPlayers": [
-        "player-D",
-        "player-E",
-        "player-G"
+        "player-I",
+        "player-J"
       ],
       "lore": "Fields of grain stretch as far as the eye can see between shrine towers.",
       "history": []
@@ -138,7 +111,44 @@
   ],
   "spacelanes": [
     {
-      
+      "from": "planet-01",
+      "to": "planet-02"
+    },
+    {
+      "from": "planet-02",
+      "to": "planet-03"
+    },
+    {
+      "from": "planet-03",
+      "to": "planet-04"
+    },
+    {
+      "from": "planet-04",
+      "to": "planet-05"
+    },
+    {
+      "from": "planet-01",
+      "to": "planet-03"
+    },
+    {
+      "from": "planet-01",
+      "to": "planet-04"
+    },
+    {
+      "from": "planet-02",
+      "to": "planet-04"
+    },
+    {
+      "from": "planet-02",
+      "to": "planet-05"
+    },
+    {
+      "from": "planet-03",
+      "to": "planet-05"
+    },
+    {
+      "from": "planet-05",
+      "to": "planet-01"
     }
   ]
 }

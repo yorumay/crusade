@@ -584,3 +584,41 @@ hr {
   width: 100%;
 }
 
+/* --- Control Track Pip Bonuses --- */
+.control-pip {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Lift height slightly to fit text elements elegantly without expanding the row */
+  height: 14px !important; 
+  overflow: visible;
+}
+
+.pip-bonus-text {
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.45);
+  padding: 1px 3px;
+  border-radius: 3px;
+  pointer-events: none;
+  user-select: none;
+}
+
+.pip-bonus-star {
+  font-size: 11px;
+  line-height: 1;
+  color: #f59e0b; /* Narrative campaign gold */
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.8));
+  pointer-events: none;
+  user-select: none;
+  transform: scale(1.1);
+}
+
+/* Ensure filled states don't wash out the white indicators */
+.control-pip.filled .pip-bonus-text {
+  background: rgba(11, 16, 32, 0.65);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}

@@ -447,14 +447,35 @@ function renderPlanetDetails(data, planetId, container) {
     const trackRow = make('div', { className: 'control-steps-track' });
 
     for (let i = 1; i <= 12; i++) {
-      const isFilled = i <= filledCount;
-      const pipAttrs = { className: `control-pip ${isFilled ? 'filled' : ''}` };
-      
-      if (isFilled) {
-        pipAttrs.style = `--pip-glow: ${faction.color}; background-color: ${faction.color};`;
-      }
-      trackRow.appendChild(make('div', pipAttrs));
-    }
+  const isFilled = i <= filledCount;
+  const pipAttrs = { className: `control-pip ${isFilled ? 'filled' : ''}` };
+  
+  if (isFilled) {
+    pipAttrs.style = `--pip-glow: ${faction.color}; background-color: ${faction.color};`;
+  }
+
+  // Create the pip node
+  const pipNode = make('div', pipAttrs);
+
+  // Inject GM reward badges at specific control point thresholds
+  if (i === 2 || i === 5 || i === 9) {
+    // Campaign Victory Point Indicator
+    const vpBadge = make('span', { 
+      className: 'pip-bonus-text', 
+      textContent: '+1' 
+    });
+    pipNode.appendChild(vpBadge);
+  } else if (i === 3) {
+    // Strategic Region Bonus Symbol (4-pointed star symbol: ✦)
+    const starBadge = make('span', { 
+      className: 'pip-bonus-star', 
+      textContent: '✦' 
+    });
+    pipNode.appendChild(starBadge);
+  }
+
+  trackRow.appendChild(pipNode);
+}
 
     trackerCard.appendChild(make('div', { className: 'control-bar-group' }, [labelRow, trackRow]));
   });
