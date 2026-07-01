@@ -9,8 +9,8 @@
   "planets": [
     {
       "id": "planet-01",
-      "name": "Planet 01",
-      "type": "Cemetery World",
+      "name": "Ophelia III",
+      "type": "Hive World",
       "x": 882,
       "y": 345, 
       "controlSteps": {
@@ -18,19 +18,17 @@
         "invaders": 0,
         "despoilers": 0
       },
-      "description": "Lorem ipsom.",
+      "description": "",
       "occupyingPlayers": [
-        "player-A",
-        "player-B"
       ],
-      "lore": "Lorem Ipsum",
+      "lore": "Controlling players may select one of the following: 1) Redeploy. When both players have setup their armies, after the initiative has been rolled but the game has not been started, you can redeploy up to three units. 2) Onwards. Three units who don't have the Scout rule, gain Scout 5.",
       "history": [
       ]
     },
     {
       "id": "planet-02",
-      "name": "Planet 02",
-      "type": "Death World",
+      "name": "Yadathan",
+      "type": "Agri World",
       "x": 1224,
       "y": 594,
       "controlSteps": {
@@ -38,74 +36,65 @@
         "invaders": 0,
         "despoilers": 0
       },
-      "description": "A jungle world where the canopy swallows entire armies.",
+      "description": "",
       "occupyingPlayers": [
-        "player-C",
-        "player-D"
       ],
-      "lore": "No map drawn here survives a single campaign season.",
+      "lore": "Controlling players may select one of the following: 1) Reinforcements. During movement phase, select one infantry, beast or mounted unit who started the battle with 2 or more models, and has been destroyed. Bring this unit back at half strength (rounding up). Leaders and Supports who were attached to the unit do not come back. This unit is deployed 9 inches from any table edge, but not within 8 inches of the enemy. 2) Emergency Recovery. During command phase, select one unit that has not been battleshocked. Heal d6.",
       "history": [
-        {
-          "turn": 1,
-          "event": "A contested landing zone was established."
-        }
       ]
     },
     {
       "id": "planet-03",
-      "name": "Planet 03",
-      "type": "Forge World",
+      "name": "Thurio's Doom",
+      "type": "Shrine World",
       "x": 1093,
       "y": 996,
       "controlSteps": {
-        "protectors": 1,
+        "protectors": 0,
         "invaders": 0,
         "despoilers": 0
       },
-      "description": "Ancient manufactoria and orbital docks dominate this world.",
+      "description": "",
       "occupyingPlayers": [
-        "player-E",
-        "player-F"
       ],
-      "lore": "Its machine-spirits are said to remember the first crusade fleets.",
-      "history": []
+      "lore": "Controlling players may select one of the following: 1) X. Select one unit on the battlefield. They gain +5 to their OC for the rest of the battle. 2) Y. Select one unit on the battlefield. They gain +1 LD for the rest of the battle.",
+      "history": [
+
+      ]
     },
     {
       "id": "planet-04",
-      "name": "Planet 04",
-      "type": "Agri World",
+      "name": "Scylla X",
+      "type": "Forge World",
       "x": 671,
       "y": 996,
       "controlSteps": {
         "protectors": 0,
         "invaders": 0,
-        "despoilers": 1
+        "despoilers": 0
       },
-      "description": "A fertile supply world feeding nearby garrisons.",
+      "description": "",
       "occupyingPlayers": [
-        "player-G",
-        "player-H"
+        
       ],
-      "lore": "Fields of grain stretch as far as the eye can see between shrine towers.",
+      "lore": "Controlling players may select one of the following: 1) Armoury. You gain one free enhancement or upgrade for this battle. You must meet the prerequisites for it. 2) Extra Ammo. During the command phase, select one unit. This unit can reroll all missed ones during this turn.",
       "history": []
     },
     {
       "id": "planet-05",
-      "name": "Planet 05",
-      "type": "Civilized World",
+      "name": "Amunet Alpha",
+      "type": "Fortress World",
       "x": 540,
       "y": 594,
       "controlSteps": {
         "protectors": 0,
-        "invaders": 1,
+        "invaders": 0,
         "despoilers": 0
       },
-      "description": "A fertile supply world feeding nearby garrisons.",
+      "description": "",
       "occupyingPlayers": [
-        "player-I",
-        "player-J"
       ],
-      "lore": "Fields of grain stretch as far as the eye can see between shrine towers.",
+      "lore": "Controlling players may select one of the following: 1) Orbital Bombardment. At the start of the battle, before first turn, roll a D3 for each enemy unit. On a 1, nothing happens. On a 2+, cause that many mortal wounds to the enemy unit. If the enemy unit is in cover, subtract 1 from the roll. 2) Strategic Command. Once per game, you may draw one additional tactical objective card, and then discard one of your tactical objective cards.",
       "history": []
     }
   ],

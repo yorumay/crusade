@@ -418,12 +418,12 @@ function renderPlanetDetails(data, planetId, container) {
   container.appendChild(make('div', { className: 'panel-heading' }, [
     make('div', {}, [
       make('h2', { textContent: planet.name }),
-      make('p', { className: 'muted', textContent: 'Planet information and controlling forces.' }),
+      // make('p', { className: 'muted', textContent: 'Planet information and controlling forces.' }),
     ]),
     make('span', { className: 'pill', textContent: `${planet.type} · ${statusFaction ? statusFaction.name : status.label}` }),
   ]));
 
-  container.appendChild(make('p', { textContent: planet.description }));
+  //container.appendChild(make('p', { textContent: planet.description }));
 
   // ========================================================
   // INTEGRATED FEATURE: Faction Strategic Control Pips Card
@@ -526,8 +526,8 @@ function renderPlanetDetails(data, planetId, container) {
 
   container.appendChild(make('hr'));
 
-  container.appendChild(make('h3', { textContent: 'Lore' }));
-  container.appendChild(make('p', { className: 'muted', textContent: planet.lore || 'No lore entered yet.' }));
+  container.appendChild(make('h3', { textContent: 'Benefit' }));
+  container.appendChild(make('p', { className: 'muted', textContent: planet.lore || '.' }));
 
   container.appendChild(make('hr'));
 
@@ -545,7 +545,7 @@ function renderPlanetDetails(data, planetId, container) {
 
   container.appendChild(make('hr'));
 
-  renderRelatedTimeline(container, 'Related Timeline', timelineEntriesForPlanet(data, planet.id), data);
+  // renderRelatedTimeline(container, 'Related Timeline', timelineEntriesForPlanet(data, planet.id), data);
 }
 
 function renderFactionDetails(data, factionId, container) {
@@ -570,10 +570,11 @@ function renderFactionDetails(data, factionId, container) {
     `
   }, [
     make('img', { 
-      src: `./icons/factions/${faction.id}.svg`, 
+      src: `./icons/factions/${faction.id}.png`, 
       alt: `${faction.name} Crest`,
       style: `
         object-fit: contain;
+        width: 100%;
         filter: drop-shadow(0 0 12px ${faction.color}66);
       `,
       onerror: "this.style.display='none';" 

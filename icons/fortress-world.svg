@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 21 21">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: none;
+        stroke: #f7f2e8;
+      }
+
+      .cls-2 {
+        fill: url(#radial-gradient);
+      }
+
+      .cls-3 {
+        fill: url(#radial-gradient-2);
+      }
+    </style>
+    <radialGradient id="radial-gradient" cx="16.2765" cy="2.7581" fx="16.2765" fy="2.7581" r="19.7284" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#517fa4"/>
+      <stop offset="1" stop-color="#243b55"/>
+    </radialGradient>
+    <radialGradient id="radial-gradient-2" cx="10.5" cy="10.5" fx="10.5" fy="10.5" r="9.5" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#343a40" stop-opacity="0"/>
+      <stop offset=".3428" stop-color="#2f353a" stop-opacity=".1604"/>
+      <stop offset=".7578" stop-color="#23272c" stop-opacity=".6224"/>
+      <stop offset="1" stop-color="#1a1d20"/>
+    </radialGradient>
+  </defs>
+  <g id="civilized-world">
+    <circle class="cls-2" cx="10.5" cy="10.5" r="10"/>
+  </g>
+  <g id="Layer_13" data-name="Layer 13">
+    <path id="abattoir" class="cls-3" d="M10.5,1C5.2617,1,1,5.2617,1,10.5s4.2617,9.5,9.5,9.5,9.5-4.2617,9.5-9.5S15.7383,1,10.5,1Z"/>
+  </g>
+  <g id="Layer_12" data-name="Layer 12">
+    <circle id="generic" class="cls-1" cx="10.5" cy="10.5" r="10"/>
+    <path d="M11.1841,16.3511c-.0718.1982-.4321.3066-1.2061.3066-.7563,0-1.0806-.1445-1.0806-.2881,0-.0186.0181-.0361.0181-.0547.6665-1.9443.8462-3.1504.8462-4.1953v-.1436c0-3.6729-1.4043-6.8242-2.7905-6.8604h-.0723c-.3062,0-.522.0723-.666.0723-.0542,0-.1079-.0176-.144-.0723-.0181-.0361-.0181-.0537-.0181-.0898,0-.126.126-.252.2881-.3604.3242-.2158.7202-.3057,1.2783-.3057h.1621c1.4946.0361,2.8809,2.2686,3.3311,5.1494.7021-2.251,1.0981-3.3848,1.5664-4.8975.0718-.2158.3599-.2695,1.1523-.2695.7383,0,1.0801.1436,1.0801.3057v.0361c-.9722,3.0244-2.8447,8.8223-3.7451,11.667Z"/>
+  </g>
+</svg>

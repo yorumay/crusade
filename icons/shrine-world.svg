@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 21 21">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: none;
+        stroke: #f7f2e8;
+      }
+
+      .cls-2 {
+        fill: url(#radial-gradient);
+      }
+
+      .cls-3 {
+        fill: url(#radial-gradient-2);
+      }
+    </style>
+    <radialGradient id="radial-gradient" cx="15.2581" cy="3.8548" fx="15.2581" fy="3.8548" r="21.3668" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#8f7546"/>
+      <stop offset="1" stop-color="#42341d"/>
+    </radialGradient>
+    <radialGradient id="radial-gradient-2" cx="10.5" cy="10.5" fx="10.5" fy="10.5" r="9.5" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f1faee" stop-opacity="0"/>
+      <stop offset=".1111" stop-color="#eff9ed" stop-opacity=".0234"/>
+      <stop offset=".2459" stop-color="#eaf7ec" stop-opacity=".0909"/>
+      <stop offset=".393" stop-color="#e2f3ea" stop-opacity=".2026"/>
+      <stop offset=".5489" stop-color="#d6eee7" stop-opacity=".3587"/>
+      <stop offset=".7119" stop-color="#c8e8e3" stop-opacity=".5593"/>
+      <stop offset=".878" stop-color="#b6e0df" stop-opacity=".8006"/>
+      <stop offset="1" stop-color="#a8dadc"/>
+    </radialGradient>
+  </defs>
+  <g id="feudal-world">
+    <circle class="cls-2" cx="10.5" cy="10.5" r="10"/>
+  </g>
+  <g id="Layer_13" data-name="Layer 13">
+    <path id="abattoir" class="cls-3" d="M10.5,1C5.2617,1,1,5.2617,1,10.5s4.2617,9.5,9.5,9.5,9.5-4.2617,9.5-9.5S15.7383,1,10.5,1Z"/>
+  </g>
+  <g id="Layer_12" data-name="Layer 12">
+    <circle id="generic" class="cls-1" cx="10.5" cy="10.5" r="10"/>
+    <path d="M14.8843,8.5557c-.3955,1.8369-.54,2.5752-.7383,3.5469-.0361.2168-.0713.3965-.0713.54,0,.2344.0898.3789.3594.3789.1807,0,.3789-.0723.54-.1621.1084-.0547.1807-.0908.2529-.0908.0713,0,.126.0361.1621.127,0,.0176.0176.0537.0176.0713,0,.0723-.0723.1621-.3066.3242-.3594.252-1.0977.54-1.8721.54-1.0801,0-1.5303-.4863-1.5303-1.2061v-.0898c-.54.7744-1.5127,1.2236-2.3408,1.2236-.4678,0-.8818-.1436-1.1709-.4492-.1797.8818-.3955,2.0166-.5938,2.9707-.0537.2334-.4316.3594-1.2422.3594-.792,0-1.0264-.1611-1.0264-.3418v-.0361c.6846-3.2402,1.8545-8.9482,2.377-11.6133.0361-.1982.3594-.2881,1.1523-.2881.7383,0,1.2783.1621,1.2783.3604v.0176c-.3066,1.4229-.9727,4.6816-1.2783,6.1396-.0186.127-.0361.2529-.0361.3789,0,.792.54,1.4219,1.0977,1.4219.8467,0,1.585-.5762,1.9268-1.2061.1621-.6299.4502-2.0703.6484-2.917.3242-1.5303.5762-2.8984.7744-3.835.0361-.2344.4141-.3418,1.2422-.3418.7383,0,1.1699.1436,1.1699.3418v.0176c-.1973.8828-.4316,2.0713-.792,3.8174Z"/>
+  </g>
+</svg>
